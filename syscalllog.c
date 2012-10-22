@@ -2,7 +2,7 @@
 #include <linux/kernel.h>       /* Needed for KERN_INFO */
 #include <linux/init.h>         /* Needed for the macros */
 #include <linux/syscalls.h>		/* Needed for getting syscall reference */
-#include <time.h>				/* Needed for getting microseconds from Epoch */
+#include <linux/time.h>			/* Needed for getting microseconds from Epoch */
 #include <linux/proc_fs.h>
 #include <linux/sched.h>
 #include <linux/vmalloc.h>
@@ -15,7 +15,7 @@
 #define MODULE_VERS "0.01"
 #define MODULE_NAME "syscalllog"
 
-unsigned long *sys_call_table;
+static unsigned long *sys_call_table;
 
 asmlinkage long (*original_sys_open) (const char __user * filename, int
 flags, int mode);
@@ -38,14 +38,12 @@ static int __init logger_init(void)
 {
 	
 	int i=1024;
-	unsigned long *sys_table;
+	unsigned long *sys_table = 0;
 	int flag = 0;
-	sys_table = (unsigned long *)&system_utsname;
-
-	while(i)
-	{
-		if(sys_table[__NR_read] == (unsigned long)sys_read)
-		{
+	// sys_table = (unsigned long *)args[0];
+	sys_table = (unsigned long *)simple_strtoul("0x804fbb80",NULL,16);
+	while(i) {
+		if(sys_table[__NR_read] == (unsigned long)sys_read)	{
 			sys_call_table=sys_table;
 			flag=1;
 			break;   
@@ -55,11 +53,13 @@ static int __init logger_init(void)
 
 	}
 
-	if(flag)
-	{
+	if(flag) {
 		original_sys_open =(void * )xchg(&sys_call_table[__NR_open], our_fake_open_function);
 		printk(KERN_INFO "SyscallLog: Syscall open found, replacing it...\n");
-	}	
+	}
+	else {
+		printk(KERN_INFO "SyscallLog: Syscall open not found, nothing to do...\n");
+	}
 	
 	
 	printk(KERN_INFO "SyscallLog: Everything loaded, good to go!\n");
