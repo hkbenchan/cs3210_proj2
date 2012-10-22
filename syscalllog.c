@@ -17,17 +17,19 @@
 
 static unsigned long *sys_call_table;
 static bool replaced = false;
+
 asmlinkage long (*original_sys_open) (const char __user * filename, int
 flags, int mode);
 
 asmlinkage long our_fake_open_function(const char __user *filename, int
 flags, int mode)
 {
-	struct timespec tv = current_kernel_time();
+	//struct timespec tv = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	
-	printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld\n",current->uid,filename,tv.tv_nsec);
-    return original_sys_open(filename,flags,mode);
+	//printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld\n",current->uid,filename,tv.tv_nsec);
+	printk(KERN_INFO "SyscallLog: intercept open function\n");
+	return original_sys_open(filename,flags,mode);
 }
 
 

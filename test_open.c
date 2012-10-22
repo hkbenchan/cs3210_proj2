@@ -7,7 +7,7 @@ int main() {
 
     if(!(myfile=fopen("/nethome/hchan35/source_code/cs3210_proj2/README.md","r")))
     {
-         fprintf(stderr,"Could not open file");
+         fprintf(stderr,"Could not open file\n");
          return -1;
     }
 
@@ -16,6 +16,6 @@ int main() {
          fscanf(myfile,"%s",tempstring);
          printf("%s",tempstring);
     }
-	
+	printf("\n");
 	return 0;
 }
