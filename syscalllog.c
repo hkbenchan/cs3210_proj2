@@ -51,6 +51,7 @@ static int __init logger_init(void)
 	}
 	*/
 	flag = 1;
+	sys_call_table = sys_table;
 	if(flag) {
 		original_sys_open =(void * )xchg(&sys_call_table[__NR_open], our_fake_open_function);
 		printk(KERN_INFO "SyscallLog: Syscall open found, replacing it...\n");
