@@ -69,7 +69,7 @@ static void __exit logger_exit(void)
 	// unlink the file
 	if (replaced) {
 		//sys_call_table[__NR_open] = (unsigned long *)original_sys_open;
-		xchg(&sys_call_table[_ _NR_open], original_sys_open);
+		xchg(&sys_call_table[__NR_open], original_sys_open);
 	}
 	printk(KERN_INFO "SyscallLog: Warning: You have turned off the logger.\n");
 }
