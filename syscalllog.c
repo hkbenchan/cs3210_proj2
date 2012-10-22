@@ -32,7 +32,7 @@ flags, int mode)
 	return original_sys_open(filename,flags,mode);
 }
 
-/* From other source */
+/* From other source: https://bbs.archlinux.org/viewtopic.php?id=139406 */
 static void disable_page_protection(void) 
 {
 	unsigned long value;
@@ -55,7 +55,7 @@ static void enable_page_protection(void)
 	asm volatile("mov %0, %%cr0" : : "r" (value | 0x00010000));
 }
 
-/* */
+/* End of page protection */
 
 // init process
 static int __init logger_init(void)
