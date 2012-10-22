@@ -14,8 +14,8 @@ test_open: test_open.c
 	gcc -o test_open test_open.c
 
 load : syscalllog.o
-	-/sbin/rmmod syscallog
-	/sbin/insmod syscallog.ko
+	-/sbin/rmmod syscalllog
+	/sbin/insmod syscalllog.ko
 
 unload:
-	-/sbin/rmmod syscallog
+	-/sbin/rmmod syscalllog
