@@ -36,7 +36,7 @@ static int __init logger_init(void)
 {
 	
 	int i=1024;
-	unsigned long *sys_table = 0;
+	unsigned long *sys_table;
 	int flag = 0;
 	// sys_table = (unsigned long *)args[0];
 	sys_table = (unsigned long *)simple_strtoul("0x804fbb80",NULL,16);
