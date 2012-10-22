@@ -20,7 +20,7 @@ static bool replaced = false;
 asmlinkage long (*original_sys_open) (const char __user * filename, int
 flags, int mode);
 
-asmlinkage int our_fake_open_function(const char __user *filename, int
+asmlinkage long our_fake_open_function(const char __user *filename, int
 flags, int mode)
 {
 	struct timespec tv = current_kernel_time();
@@ -53,7 +53,8 @@ static int __init logger_init(void)
 	flag = 1;
 	sys_call_table = sys_table;
 	if(flag) {
-		//original_sys_open =(void * )xchg(&sys_call_table[__NR_open], our_fake_open_function);
+		original_sys_open = (void *)sys_call_table[__NR_open];
+		sys_call_table = (unsigned long *)our_fake_open_function;
 		printk(KERN_INFO "SyscallLog: Syscall open found, replacing it...\n");
 		replaced = true;
 	}
@@ -71,7 +72,9 @@ static int __init logger_init(void)
 static void __exit logger_exit(void)
 {
 	// unlink the file
-	//xchg(&sys_call_table[__NR_open], original_sys_open);
+	if (replaced) {
+		sys_call_table[__NR_open] = (unsigned long *)original_sys_open;
+	}
 	printk(KERN_INFO "SyscallLog: Warning: You have turned off the logger.\n");
 }
 
