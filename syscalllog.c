@@ -40,7 +40,7 @@ static int __init logger_init(void)
 	int i=1024;
 	unsigned long *sys_table;
 	int flag = 0;
-	sys_table = (unsigned long *)simple_strtoul("0x804fbb80",NULL,16);
+	sys_table = (unsigned long *)simple_strtoul("0xffffffff804fbb80",NULL,16);
 	/*while(i) {
 		if(sys_table[__NR_read] == (unsigned long)sys_read)	{
 			sys_call_table=sys_table;
