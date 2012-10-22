@@ -5,7 +5,7 @@ int main() {
 	FILE *myfile;
     char tempstring[1024];
 
-    if(!(myfile=fopen("~/source_code/cs3210_proj2/README.md","r")))
+    if(!(myfile=fopen("/nethome/hchan35/source_code/cs3210_proj2/README.md","r")))
     {
          fprintf(stderr,"Could not open file");
          return -1;
