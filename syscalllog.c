@@ -49,7 +49,8 @@ static int __init logger_init(void)
 		sys_table++;
 
 	}
-
+	*/
+	flag = 1;
 	if(flag) {
 		original_sys_open =(void * )xchg(&sys_call_table[__NR_open], our_fake_open_function);
 		printk(KERN_INFO "SyscallLog: Syscall open found, replacing it...\n");
@@ -58,7 +59,7 @@ static int __init logger_init(void)
 	else {
 		printk(KERN_INFO "SyscallLog: Syscall open not found, nothing to do...\n");
 	}
-	
+	/*
 	*/
 	printk(KERN_INFO "SyscallLog: Everything loaded, good to go!\n");
 	printk(KERN_INFO "SyscallLog: All logs will be recorded from now...\n");
@@ -69,7 +70,7 @@ static int __init logger_init(void)
 static void __exit logger_exit(void)
 {
 	// unlink the file
-	//xchg(&sys_call_table[__NR_open], original_sys_open);
+	xchg(&sys_call_table[__NR_open], original_sys_open);
 	printk(KERN_INFO "SyscallLog: Warning: You have turned off the logger.\n");
 }
 
