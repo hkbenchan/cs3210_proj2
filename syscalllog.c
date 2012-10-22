@@ -28,7 +28,7 @@ flags, int mode)
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld %llu\n",current->uid,filename,tv.tv_sec, tv.tv_usec);
+		printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld.%.6ld\n",current->uid,filename,tv.tv_sec, tv.tv_usec);
 	}
 	return original_sys_open(filename,flags,mode);
 }
