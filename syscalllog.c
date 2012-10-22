@@ -16,7 +16,7 @@
 #define MODULE_NAME "syscalllog"
 
 static unsigned long *sys_call_table;
-
+static bool replaced = false;
 asmlinkage long (*original_sys_open) (const char __user * filename, int
 flags, int mode);
 
@@ -38,9 +38,8 @@ static int __init logger_init(void)
 	int i=1024;
 	unsigned long *sys_table;
 	int flag = 0;
-	// sys_table = (unsigned long *)args[0];
-	sys_table = (unsigned long *)simple_strtoul("0x804fbb80",NULL,16);
-	while(i) {
+	sys_table = (unsigned long *)simple_strtoul("0xffffffff804fbb80",NULL,16);
+	/*while(i) {
 		if(sys_table[__NR_read] == (unsigned long)sys_read)	{
 			sys_call_table=sys_table;
 			flag=1;
@@ -54,12 +53,13 @@ static int __init logger_init(void)
 	if(flag) {
 		original_sys_open =(void * )xchg(&sys_call_table[__NR_open], our_fake_open_function);
 		printk(KERN_INFO "SyscallLog: Syscall open found, replacing it...\n");
+		replace = true;
 	}
 	else {
 		printk(KERN_INFO "SyscallLog: Syscall open not found, nothing to do...\n");
 	}
 	
-	
+	*/
 	printk(KERN_INFO "SyscallLog: Everything loaded, good to go!\n");
 	printk(KERN_INFO "SyscallLog: All logs will be recorded from now...\n");
 	return 0;
@@ -69,7 +69,7 @@ static int __init logger_init(void)
 static void __exit logger_exit(void)
 {
 	// unlink the file
-	xchg(&sys_call_table[__NR_open], original_sys_open);
+	//xchg(&sys_call_table[__NR_open], original_sys_open);
 	printk(KERN_INFO "SyscallLog: Warning: You have turned off the logger.\n");
 }
 
