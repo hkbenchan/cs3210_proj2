@@ -24,11 +24,11 @@ flags, int mode);
 asmlinkage long our_fake_open_function(const char __user *filename, int
 flags, int mode)
 {
-	//struct timespec tv = current_kernel_time();
+	struct timespec tv = current_kernel_time();
 	// try to get the current user id, timestamp and filename
-	
-	//printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld\n",current->uid,filename,tv.tv_nsec);
-	printk(KERN_INFO "SyscallLog: intercept open function\n");
+	if (current->uid) {
+		printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld\n",current->uid,filename,tv.tv_nsec);
+	}
 	return original_sys_open(filename,flags,mode);
 }
 
@@ -71,8 +71,6 @@ static int __init logger_init(void)
 	flag = 1;
 	sys_call_table = sys_table;
 	if(flag) {
-		//original_sys_open = (void *)sys_call_table[__NR_open];
-		//sys_call_table = (unsigned long *)our_fake_open_function;
 		disable_page_protection();
 		original_sys_open =(void * )xchg(&(sys_call_table[__NR_open]), our_fake_open_function);
 		enable_page_protection();
@@ -94,7 +92,6 @@ static void __exit logger_exit(void)
 {
 	// unlink the file
 	if (replaced) {
-		//sys_call_table[__NR_open] = (unsigned long *)original_sys_open;
 		disable_page_protection();
 		xchg(&(sys_call_table[__NR_open]), original_sys_open);
 		enable_page_protection();
