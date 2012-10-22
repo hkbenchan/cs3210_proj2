@@ -43,17 +43,7 @@ static int __init logger_init(void)
 	sys_table = (unsigned long *)simple_strtoul("0xffffffff804fbb80",NULL,16);
 	
 	printk(KERN_INFO "%lu\n", *sys_table);
-	/*while(i) {
-		if(sys_table[__NR_read] == (unsigned long)sys_read)	{
-			sys_call_table=sys_table;
-			flag=1;
-			break;   
-		}
-		i--;
-		sys_table++;
-
-	}
-	*/
+	
 	flag = 1;
 	sys_call_table = sys_table;
 	if(flag) {
