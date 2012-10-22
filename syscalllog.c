@@ -32,6 +32,30 @@ flags, int mode)
 	return original_sys_open(filename,flags,mode);
 }
 
+/* From other source */
+static void disable_page_protection(void) 
+{
+	unsigned long value;
+	asm volatile("mov %%cr0, %0" : "=r" (value));
+
+	if(!(value & 0x00010000))
+		return;
+
+	asm volatile("mov %0, %%cr0" : : "r" (value & ~0x00010000));
+}
+
+static void enable_page_protection(void) 
+{
+	unsigned long value;
+	asm volatile("mov %%cr0, %0" : "=r" (value));
+
+	if((value & 0x00010000))
+		return;
+
+	asm volatile("mov %0, %%cr0" : : "r" (value | 0x00010000));
+}
+
+/* */
 
 // init process
 static int __init logger_init(void)
@@ -49,7 +73,9 @@ static int __init logger_init(void)
 	if(flag) {
 		//original_sys_open = (void *)sys_call_table[__NR_open];
 		//sys_call_table = (unsigned long *)our_fake_open_function;
+		disable_page_protection();
 		original_sys_open =(void * )xchg(&(sys_call_table[__NR_open]), our_fake_open_function);
+		enable_page_protection();
 		printk(KERN_INFO "SyscallLog: Syscall open found, replacing it...\n");
 		replaced = true;
 	}
@@ -69,7 +95,9 @@ static void __exit logger_exit(void)
 	// unlink the file
 	if (replaced) {
 		//sys_call_table[__NR_open] = (unsigned long *)original_sys_open;
+		disable_page_protection();
 		xchg(&(sys_call_table[__NR_open]), original_sys_open);
+		enable_page_protection();
 	}
 	printk(KERN_INFO "SyscallLog: Warning: You have turned off the logger.\n");
 }
