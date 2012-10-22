@@ -4,9 +4,7 @@ int main() {
 	
 	FILE *myfile;
     char tempstring[1024];
-	
-	printf("%lu\n",(unsigned long *)simple_strtoul("0xffffffff804fbb80",NULL,16));
-	
+
     if(!(myfile=fopen("/nethome/hchan35/source_code/cs3210_proj2/README.md","r")))
     {
          fprintf(stderr,"Could not open file\n");
