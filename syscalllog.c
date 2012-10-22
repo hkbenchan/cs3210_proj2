@@ -24,11 +24,11 @@ flags, int mode);
 asmlinkage long our_fake_open_function(const char __user *filename, int
 flags, int mode)
 {
-	struct timespec *tv;
-	getrawmonotonic(tv);// = current_kernel_time();
+	struct timeval *tv;
+	do_gettimeofday(tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld\n",current->uid,filename,tv->tv_nsec);
+		printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld\n",current->uid,filename,tv->tv_usec);
 	}
 	return original_sys_open(filename,flags,mode);
 }
