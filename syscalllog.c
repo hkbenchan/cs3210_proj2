@@ -154,7 +154,7 @@ asmlinkage long our_fake_access_function(const char __user * filename, int mode)
 	if (current->uid) {
 		log_action(current->uid, tv, "access");
 	}
-	return original_sys_acces(filename,mode);
+	return original_sys_access(filename,mode);
 }
 
 /** readlink **/
@@ -174,9 +174,11 @@ asmlinkage long our_fake_readlink_function(const char __user * path, char __user
 
 /** mmap **/
 
-asmlinkage int (*original_old_mmap) (struct mmap_arg_struct __user *arg);
+asmlinkage long (*original_old_mmap) (unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags, 
+	unsigned long fd, unsigned long offset);
 
-asmlinkage int our_fake_mmap_function(struct mmap_arg_struct __user *arg)
+asmlinkage int our_fake_mmap_function(unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags, 
+	unsigned long fd, unsigned long offset)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);// = current_kernel_time();
@@ -184,7 +186,7 @@ asmlinkage int our_fake_mmap_function(struct mmap_arg_struct __user *arg)
 	if (current->uid) {
 		log_action(current->uid, tv, "mmap");
 	}
-	return original_old_mmap(arg);	
+	return original_old_mmap(addr, len, prot, flags, fd, offset;	
 }
 
 /** ioperm **/
@@ -313,7 +315,7 @@ asmlinkage ssize_t our_fake_pread_function(unsigned int fd, char __user *buf, si
 
 asmlinkage int (*original_sys_setregid) (gid_t rgid, gid_t egid);
 	
-asmlinkage int our_fake_setreuid_function(gid_t rgid, gid_t egid)
+asmlinkage int our_fake_setregid_function(gid_t rgid, gid_t egid)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);
@@ -356,7 +358,7 @@ asmlinkage int our_fake_setuid_function(uid_t uid)
 
 /** mmap2 **/
 
-asmlinkage long(*orginal_sys_mmap2) (unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags,
+asmlinkage long(*original_sys_mmap2) (unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags,
 	unsigned long fd, unsigned long pgoff);
 
 asmlinkage long our_fake_mmap2_function(unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags,
@@ -462,7 +464,7 @@ static int __init logger_init(void)
 		original_sys_ioperm =(void * )xchg(&(sys_call_table[__NR_ioperm]), our_fake_ioperm_function);
 		//
 		original_sys_setuid =(void * )xchg(&(sys_call_table[__NR_setuid32]), our_fake_setuid_function);
-		original_sys_setreuid =(void * )xchg(&(sys_call_table[__NR_setruid332]), our_fake_setreuid_function);
+		original_sys_setreuid =(void * )xchg(&(sys_call_table[__NR_setruid32]), our_fake_setreuid_function);
 		original_sys_mmap2 =(void * )xchg(&(sys_call_table[__NR_mmap2]), our_fake_mmap2_function);
 		original_sys_vfork =(void * )xchg(&(sys_call_table[__NR_vfork]), our_fake_vfork_function);
 		original_sys_pread =(void * )xchg(&(sys_call_table[__NR_pread64]), our_fake_pread_function);
