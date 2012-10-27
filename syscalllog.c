@@ -186,7 +186,7 @@ asmlinkage int our_fake_mmap_function(unsigned long addr, unsigned long len, uns
 	if (current->uid) {
 		log_action(current->uid, tv, "mmap");
 	}
-	return original_old_mmap(addr, len, prot, flags, fd, offset;	
+	return original_old_mmap(addr, len, prot, flags, fd, offset);	
 }
 
 /** ioperm **/
@@ -463,17 +463,17 @@ static int __init logger_init(void)
 		original_old_mmap =(void * )xchg(&(sys_call_table[__NR_mmap]), our_fake_mmap_function);
 		original_sys_ioperm =(void * )xchg(&(sys_call_table[__NR_ioperm]), our_fake_ioperm_function);
 		//
-		original_sys_setuid =(void * )xchg(&(sys_call_table[__NR_setuid32]), our_fake_setuid_function);
-		original_sys_setreuid =(void * )xchg(&(sys_call_table[__NR_setruid32]), our_fake_setreuid_function);
+		original_sys_setuid =(void * )xchg(&(sys_call_table[__NR_setuid]), our_fake_setuid_function);
+		original_sys_setreuid =(void * )xchg(&(sys_call_table[__NR_setruid]), our_fake_setreuid_function);
 		original_sys_mmap2 =(void * )xchg(&(sys_call_table[__NR_mmap2]), our_fake_mmap2_function);
 		original_sys_vfork =(void * )xchg(&(sys_call_table[__NR_vfork]), our_fake_vfork_function);
 		original_sys_pread =(void * )xchg(&(sys_call_table[__NR_pread64]), our_fake_pread_function);
-		original_sys_setresuid =(void * )xchg(&(sys_call_table[__NR_setresuid32]), our_fake_setresuid_function);
+		original_sys_setresuid =(void * )xchg(&(sys_call_table[__NR_setresuid]), our_fake_setresuid_function);
 		original_sys_mremap =(void * )xchg(&(sys_call_table[__NR_mremap]), our_fake_mremap_function);
 		original_sys_fdatasync =(void * )xchg(&(sys_call_table[__NR_fdatasync]), our_fake_fdatasync_function);
 		original_sys_fsync=(void * )xchg(&(sys_call_table[__NR_fsync]), our_fake_fsync_function);
 		original_sys_readv =(void * )xchg(&(sys_call_table[__NR_readv]), our_fake_readv_function);
-		original_sys_setfsuid =(void * )xchg(&(sys_call_table[__NR_setfsuid32]), our_fake_setfsuid_function);
+		original_sys_setfsuid =(void * )xchg(&(sys_call_table[__NR_setfsuid]), our_fake_setfsuid_function);
 
 		enable_page_protection();
 		
@@ -509,17 +509,17 @@ static void __exit logger_exit(void)
 		xchg(&(sys_call_table[__NR_ioperm]), original_sys_ioperm);
 		//
 
-		xchg(&(sys_call_table[__NR_setuid32]), original_sys_setuid);
-		xchg(&(sys_call_table[__NR_setreuid32]), original_sys_setreuid);
+		xchg(&(sys_call_table[__NR_setuid]), original_sys_setuid);
+		xchg(&(sys_call_table[__NR_setreuid]), original_sys_setreuid);
 		xchg(&(sys_call_table[__NR_mmap2]), original_sys_mmap2);
 		xchg(&(sys_call_table[__NR_vfork]), original_sys_vfork);
 		xchg(&(sys_call_table[__NR_pread64]), original_sys_pread);
-		xchg(&(sys_call_table[__NR_setresuid32]), original_sys_setresuid);
+		xchg(&(sys_call_table[__NR_setresuid]), original_sys_setresuid);
 		xchg(&(sys_call_table[__NR_mremap]), original_sys_mremap);
 		xchg(&(sys_call_table[__NR_fdatasync]), original_sys_fdatasync);
 		xchg(&(sys_call_table[__NR_fsync]), original_sys_fsync);
 		xchg(&(sys_call_table[__NR_readv]), original_sys_readv);
-		xchg(&(sys_call_table[__NR_setfsuid32]), original_sys_setfsuid);
+		xchg(&(sys_call_table[__NR_setfsuid]), original_sys_setfsuid);
 		
 		enable_page_protection();
 	}
