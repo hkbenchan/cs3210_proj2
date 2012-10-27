@@ -29,9 +29,11 @@ int main() {
 	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp_end) < 0){
 		printf("clock_gettime() failed\n");
 	}
-	struct timespec tp_diff;
-	tp_diff = diff(tp_start,tp_end);
-	printf("This test took  %ld seconds.\n", tp_diff.tv_sec);
+	//struct timespec tp_diff;
+	
+	long nano_seconds = (tp_end.tv_nsec - tp_start.tv_nsec);
+
+	printf("This test took  %ld seconds.\n", nano_seconds);
 	
 	return 0;
 }
