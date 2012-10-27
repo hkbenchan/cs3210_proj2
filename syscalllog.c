@@ -395,7 +395,7 @@ asmlinkage pid_t our_fake_vfork_function(struct pt_regs regs)
 
 /* From other source: https://bbs.archlinux.org/viewtopic.php?id=139406 */
 
-static unsigned long *aquire_sys_call_table(void)
+static unsigned long **aquire_sys_call_table(void)
 {
 	unsigned long int offset = PAGE_OFFSET;
 	unsigned long **sct;
@@ -403,8 +403,8 @@ static unsigned long *aquire_sys_call_table(void)
 	while (offset < ULLONG_MAX) {
 		sct = (unsigned long **)offset;
 
-		if (sct[__NR_close] == (unsigned long *) sys_close) 
-			return &sct;
+		if (sct[__NR_open] == (unsigned long *) sys_open) 
+			return sct;
 
 		offset += sizeof(void *);
 	}
@@ -439,17 +439,17 @@ static void enable_page_protection(void)
 // init process
 static int __init logger_init(void)
 {
-	unsigned long *sys_table;
+	unsigned long **sys_table;
 	int flag = 0;
 	//sys_table = (unsigned long *)simple_strtoul("0xffffffff804fbb80",NULL,16);
 	sys_table = aquire_sys_call_table();
 	if (sys_table) {
 		flag = 1;
-		printk(KERN_INFO "%lu\n", *sys_table);
+		printk(KERN_INFO "%lu\n", **sys_table);
 	}
 		
 	if(flag) {
-		sys_call_table = sys_table;
+		sys_call_table = &sys_table;
 		printk(KERN_INFO "SyscallLog: Syscall table found, replacing selected functions with our own...\n");
 		disable_page_protection();
 		original_sys_fork =(void * )xchg(&(sys_call_table[__NR_fork]), our_fake_fork_function);
