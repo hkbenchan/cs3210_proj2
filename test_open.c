@@ -32,7 +32,7 @@ int main() {
 	//struct timespec tp_diff;
 	
 	long nano_seconds = (tp_end.tv_nsec - tp_start.tv_nsec);
-
+	printf("%ld %ld", tp_end.tv_sec, tp_end.tv_nsec); 
 	printf("This test took  %ld seconds.\n", nano_seconds);
 	
 	return 0;
