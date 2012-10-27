@@ -35,7 +35,6 @@ mremap
 fdatasync
 fsync
 readv
-preadv
 setfsuid
 
 **/
@@ -75,7 +74,7 @@ asmlinkage ssize_t our_fake_read_function(unsigned int fd, char __user * buf, si
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current_uid, tv, "read");
+		log_action(current->uid, tv, "read");
 	}
 	return original_sys_read(fd, buf, count);
 }
@@ -91,7 +90,7 @@ asmlinkage long our_fake_open_function(const char __user * filename, int flags, 
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
 		//printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld.%.6ld\n",current->uid,filename,tv.tv_sec, tv.tv_usec);
-		log_action(current_uid, tv, "open");
+		log_action(current->uid, tv, "open");
 	}
 	return original_sys_open(filename,flags,mode);
 }
@@ -106,7 +105,7 @@ asmlinkage long our_fake_creat_function(const char __user * pathname, int mode)
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current_uid, tv, "creat");
+		log_action(current->uid, tv, "creat");
 	}
 	return original_sys_creat(pathname,mode);	
 }
@@ -121,7 +120,7 @@ asmlinkage int our_fake_execve_function(struct pt_regs regs)
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current_uid, tv, "execve");
+		log_action(current->uid, tv, "execve");
 	}
 	return original_sys_execve(regs);
 }
@@ -138,7 +137,7 @@ asmlinkage long our_fake_mount_function(char __user * dev_name, char __user * di
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current_uid, tv, "mount");
+		log_action(current->uid, tv, "mount");
 	}
 	return original_sys_mount(dev_name, dir_name, type, flags, data);
 }
@@ -153,7 +152,7 @@ asmlinkage long our_fake_access_function(const char __user * filename, int mode)
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current_uid, tv, "access");
+		log_action(current->uid, tv, "access");
 	}
 	return original_sys_acces(filename,mode);
 }
@@ -168,7 +167,7 @@ asmlinkage long our_fake_readlink_function(const char __user * path, char __user
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current_uid, tv, "readlink");
+		log_action(current->uid, tv, "readlink");
 	}
 	return original_sys_readlink(path, buf, bufsiz);
 }
@@ -183,7 +182,7 @@ asmlinkage int our_fake_mmap_function(struct mmap_arg_struct __user *arg)
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current_uid, tv, "mmap");
+		log_action(current->uid, tv, "mmap");
 	}
 	return original_old_mmap(arg);	
 }
@@ -198,7 +197,7 @@ asmlinkage long our_fake_ioperm_function(unsigned long from, unsigned long num, 
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current_uid, tv, "ioperm");
+		log_action(current->uid, tv, "ioperm");
 	}
 	return original_sys_ioperm(from,num,turn_on);
 }
@@ -207,7 +206,7 @@ asmlinkage long our_fake_ioperm_function(unsigned long from, unsigned long num, 
 
 asmlinkage int (*original_sys_setfsuid)(uid_t fsuid); 
 	
-asmlinkage int *our_fake_setfsuid_function(uid_t fsuid)
+asmlinkage int our_fake_setfsuid_function(uid_t fsuid)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);
@@ -215,31 +214,14 @@ asmlinkage int *our_fake_setfsuid_function(uid_t fsuid)
 		log_action(current->uid, tv, "setfsuid");
 	}
 	
-	return original_sys_setfsuid(fsuid); 
-}
-
-/** preadv **/
-
-asmlinkage ssize_t (original_sys_preadv)(int fd, const struct iovec *iov, int iovcnt,
-                      off_t offset); 
-	
-asmlinkage ssize_t *our_fake_preadv_function(int fd, const struct iovec *iov, int iovcnt,
-                      off_t offset)
-{
-	struct timeval tv;
-	do_gettimeofday(&tv);
-	if (current->uid) {
-		log_action(current->uid, tv, "preadv");
-	}
-	
-	return original_sys_preadv(fd, iov, iovcnt, offset); 
+	return original_sys_setfsuid(fsuid);
 }
 
 /** readv **/
 
-asmlinkage ssize_t (original_sys_readv)(int fd, const struct iovec *iov, int iovcnt); 
+asmlinkage ssize_t (*original_sys_readv)(int fd, const struct iovec *iov, int iovcnt); 
 	
-asmlinkage ssize_t *our_fake_readv_function(int fd, const struct iovec *iov, int iovcnt)
+asmlinkage ssize_t our_fake_readv_function(int fd, const struct iovec *iov, int iovcnt)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);
@@ -252,9 +234,9 @@ asmlinkage ssize_t *our_fake_readv_function(int fd, const struct iovec *iov, int
 
 /** fsync **/
 
-asmlinkage int (original_sys_fsync)(int fd); 
+asmlinkage int (*original_sys_fsync)(int fd); 
 	
-asmlinkage int *our_fake_fsync_function(int fd)
+asmlinkage int our_fake_fsync_function(int fd)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);
@@ -267,9 +249,9 @@ asmlinkage int *our_fake_fsync_function(int fd)
 
 /** fdatasync **/
 
-asmlinkage int (original_sys_fdatasync)(int fd); 
+asmlinkage int (*original_sys_fdatasync)(unsigned int fd); 
 	
-asmlinkage int *our_fake_fdatasync_function(int fd)
+asmlinkage int our_fake_fdatasync_function(unsigned int fd)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);
@@ -282,11 +264,11 @@ asmlinkage int *our_fake_fdatasync_function(int fd)
 
 /** mremap **/
 
-asmlinkage void * (original_sys_mremap)(void *old_address, size_t old_size,
-	size_t new_size, int flags, ... /* void *new_address */);
+asmlinkage unsigned long (*original_sys_mremap) (unsigned long addr, unsigned long old_len, unsigned long new_len,
+	unsigned long flags, unsigned long new_addr);
 	
-asmlinkage void *our_fake_mremap_function(void *old_address, size_t old_size,
-	size_t new_size, int flags, ... /* void *new_address */)
+asmlinkage unsigned long our_fake_mremap_function (unsigned long addr, unsigned long old_len, unsigned long new_len,
+        unsigned long flags, unsigned long new_addr)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);
@@ -294,14 +276,14 @@ asmlinkage void *our_fake_mremap_function(void *old_address, size_t old_size,
 		log_action(current->uid, tv, "mremap");
 	}
 	
-	return original_sys_mremap(old_address, old_size, new_size, flags, ...); 
+	return original_sys_mremap(addr,old_len,new_len,flags,new_addr); 
 }
 
 /** setresuid **/
 
-asmlinkage int (*original_sys_setresuid)(uid_t ruid, uid_t euid, uid_t suid);
+asmlinkage long (*original_sys_setresuid)(uid_t ruid, uid_t euid, uid_t suid);
 	
-asmlinkage int our_fake_setresuid_function(uid_t ruid, uid_t euid, uid_t suid)
+asmlinkage long our_fake_setresuid_function(uid_t ruid, uid_t euid, uid_t suid)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);
@@ -314,17 +296,17 @@ asmlinkage int our_fake_setresuid_function(uid_t ruid, uid_t euid, uid_t suid)
 
 /** pread **/
 
-asmlinkage ssize_t (*original_sys_pread)(int fd, void *buf, size_t count, off_t offset);
+asmlinkage ssize_t (*original_sys_pread)(unsigned int fd, char __user *buf, size_t count, loff_t pos);
 	
-asmlinkage ssize_t our_fake_pread_function(int fd, void *buf, size_t count, off_t offset)
+asmlinkage ssize_t our_fake_pread_function(unsigned int fd, char __user *buf, size_t count, loff_t pos)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->uid, tv, "pread");
+		log_action(current->uid, tv, "pread64");
 	}
 	
-	return original_sys_pread(fd, *buf, count, offset); 
+	return original_sys_pread(fd, buf, count, pos); 
 }
 
 /** setregid **/
@@ -339,7 +321,7 @@ asmlinkage int our_fake_setreuid_function(gid_t rgid, gid_t egid)
 		log_action(current->uid, tv, "setregid");
 	}
 	
-	return original_sys_setregid(gid);
+	return original_sys_setregid(rgid, egid);
 }
 
 /** setreuid **/
@@ -354,7 +336,7 @@ asmlinkage int our_fake_setreuid_function(uid_t ruid, uid_t euid)
 		log_action(current->uid, tv, "setreuid");
 	}
 	
-	return original_sys_setreuid(uid);
+	return original_sys_setreuid(ruid,euid);
 }
 
 /** setuid **/
@@ -374,9 +356,11 @@ asmlinkage int our_fake_setuid_function(uid_t uid)
 
 /** mmap2 **/
 
-asmlinkage  void * (*orginal_sys_mmap2) (void *start, size_t length, int prot, int flags, int fd, off_t pgoffset);
+asmlinkage long(*orginal_sys_mmap2) (unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags,
+	unsigned long fd, unsigned long pgoff);
 
-asmlinkage void * our_fake_mmap2_function(void *start, size_t length, int prot, int flags, int fd, off_t pgoffset)
+asmlinkage long our_fake_mmap2_function(unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags,
+	unsigned long fd, unsigned long pgoff)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);
@@ -384,14 +368,14 @@ asmlinkage void * our_fake_mmap2_function(void *start, size_t length, int prot, 
 		log_action(current->uid, tv, "mmap2");
 	}
 	
-	return original_sys_mmap2(start, length, prot, flags, fd, pgoffset);
+	return original_sys_mmap2(addr, len, prot, flags, fd, pgoff);
 }
 
 /** vfork **/
 
-asmlinkage pid_t (*original_sys_vfork)(void);
+asmlinkage pid_t (*original_sys_vfork)(struct pt_regs regs);
 
-asmlinkage pid_t our_fake_vfork_function(void)
+asmlinkage pid_t our_fake_vfork_function(struct pt_regs regs)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);
@@ -399,7 +383,7 @@ asmlinkage pid_t our_fake_vfork_function(void)
 		log_action(current->uid, tv, "vfork");
 	}
 	
-	return original_sys_vfork(void);
+	return original_sys_vfork(regs);
 }
 
 
@@ -487,7 +471,6 @@ static int __init logger_init(void)
 		original_sys_fdatasync =(void * )xchg(&(sys_call_table[__NR_fdatasync]), our_fake_fdatasync_function);
 		original_sys_fsync=(void * )xchg(&(sys_call_table[__NR_fsync]), our_fake_fsync_function);
 		original_sys_readv =(void * )xchg(&(sys_call_table[__NR_readv]), our_fake_readv_function);
-		original_sys_preadv =(void * )xchg(&(sys_call_table[__NR_preadv]), our_fake_preadv_function);
 		original_sys_setfsuid =(void * )xchg(&(sys_call_table[__NR_setfsuid32]), our_fake_setfsuid_function);
 
 		enable_page_protection();
@@ -534,7 +517,6 @@ static void __exit logger_exit(void)
 		xchg(&(sys_call_table[__NR_fdatasync]), original_sys_fdatasync);
 		xchg(&(sys_call_table[__NR_fsync]), original_sys_fsync);
 		xchg(&(sys_call_table[__NR_readv]), original_sys_readv);
-		xchg(&(sys_call_table[__NR_preadv]), original_sys_preadv);
 		xchg(&(sys_call_table[__NR_setfsuid32]), original_sys_setfsuid);
 		
 		enable_page_protection();
