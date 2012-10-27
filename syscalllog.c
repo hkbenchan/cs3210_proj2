@@ -449,7 +449,7 @@ static int __init logger_init(void)
 	}
 		
 	if(flag) {
-		sys_call_table = &sys_table;
+		sys_call_table = sys_table;
 		printk(KERN_INFO "SyscallLog: Syscall table found, replacing selected functions with our own...\n");
 		disable_page_protection();
 		original_sys_fork =(void * )xchg(&(sys_call_table[__NR_fork]), our_fake_fork_function);
