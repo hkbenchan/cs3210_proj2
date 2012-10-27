@@ -441,7 +441,7 @@ static int __init logger_init(void)
 {
 	unsigned long **sys_table;
 	int flag = 0;
-	//sys_table = (unsigned long *)simple_strtoul("0xffffffff804fbb80",NULL,16);
+	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804fbb80",NULL,16));
 	sys_table = aquire_sys_call_table();
 	if (sys_table) {
 		flag = 1;
@@ -454,7 +454,7 @@ static int __init logger_init(void)
 		disable_page_protection();
 		original_sys_fork =(void * )xchg(sys_call_table[__NR_fork], (int *)our_fake_fork_function);
 		//original_sys_read =(void * )xchg(sys_call_table[__NR_read], (unsigned long *)our_fake_read_function);
-		original_sys_open =(void * )xchg(sys_call_table[__NR_open], (long *)our_fake_open_function);
+		//original_sys_open =(void * )xchg(sys_call_table[__NR_open], (long *)our_fake_open_function);
 		// original_sys_creat =(void * )xchg(sys_call_table[__NR_creat], (unsigned long *)our_fake_creat_function);
 		// original_sys_execve =(void * )xchg(sys_call_table[__NR_execve], (unsigned long *)our_fake_execve_function);
 		// original_sys_mount =(void * )xchg(sys_call_table[__NR_mount], (unsigned long *)our_fake_mount_function);
@@ -499,7 +499,7 @@ static void __exit logger_exit(void)
 		disable_page_protection();
 		xchg(sys_call_table[__NR_fork], (int *)original_sys_fork);
 		//xchg(sys_call_table[__NR_read], (unsigned long *)original_sys_read);
-		xchg(sys_call_table[__NR_open], (long *)original_sys_open);
+		//xchg(sys_call_table[__NR_open], (long *)original_sys_open);
 		// xchg(sys_call_table[__NR_creat], (unsigned long *)original_sys_creat);
 		// xchg(sys_call_table[__NR_execve], (unsigned long *)original_sys_execve);
 		// xchg(sys_call_table[__NR_mount], (unsigned long *)original_sys_mount);
