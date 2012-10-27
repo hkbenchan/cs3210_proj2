@@ -34,6 +34,24 @@ flags, int mode)
 }
 
 /* From other source: https://bbs.archlinux.org/viewtopic.php?id=139406 */
+
+static unsigned long **aquire_sys_call_table(void)
+{
+	unsigned long int offset = PAGE_OFFSET;
+	unsigned long **sct;
+
+	while (offset < ULLONG_MAX) {
+		sct = (unsigned long **)offset;
+
+		if (sct[__NR_close] == (unsigned long *) sys_close) 
+			return sct;
+
+		offset += sizeof(void *);
+	}
+
+	return NULL;
+}
+
 static void disable_page_protection(void) 
 {
 	unsigned long value;
@@ -65,13 +83,17 @@ static int __init logger_init(void)
 	int i=1024;
 	unsigned long *sys_table;
 	int flag = 0;
-	sys_table = (unsigned long *)simple_strtoul("0xffffffff804fbb80",NULL,16);
+	//sys_table = (unsigned long *)simple_strtoul("0xffffffff804fbb80",NULL,16);
+	sys_table = aquire_sys_call_table();
+	if (sys_table) {
+		flag = 1;
+		printk(KERN_INFO "%lu\n", *sys_table);
+	}
 	
-	printk(KERN_INFO "%lu\n", *sys_table);
 	
-	flag = 1;
-	sys_call_table = sys_table;
+	
 	if(flag) {
+		sys_call_table = sys_table;
 		disable_page_protection();
 		original_sys_open =(void * )xchg(&(sys_call_table[__NR_open]), our_fake_open_function);
 		enable_page_protection();
@@ -79,7 +101,8 @@ static int __init logger_init(void)
 		replaced = true;
 	}
 	else {
-		printk(KERN_INFO "SyscallLog: Syscall open not found, nothing to do...\n");
+		printk(KERN_INFO "SyscallLog: Syscall open not found, nothing to do...\nSyscallLog: Leaving...\n");
+		return -1;
 	}
 	/*
 	*/
