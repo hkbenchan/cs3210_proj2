@@ -18,6 +18,23 @@
 static unsigned long *sys_call_table;
 static bool replaced = false;
 
+static void log_action(unsigned long uid, struct timeval tv) {
+	//printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld.%.6ld\n",current->uid,filename,tv.tv_sec, tv.tv_usec);
+}
+
+asmlinkage long (*original_sys_fork) (struct pt_regs regs);
+	
+asmlinkage long our_fake_fork_func (struct pt_regs regs)
+{
+	struct timeval tv;
+	do_gettimeofday(&tv);
+	if (current->uid) {
+		log_action(current->uid, tv);
+	}
+	
+	return original_sys_fork(regs);
+}
+
 asmlinkage long (*original_sys_open) (const char __user * filename, int
 flags, int mode);
 
@@ -95,9 +112,12 @@ static int __init logger_init(void)
 	if(flag) {
 		sys_call_table = sys_table;
 		disable_page_protection();
-		original_sys_open =(void * )xchg(&(sys_call_table[__NR_open]), our_fake_open_function);
-		enable_page_protection();
 		printk(KERN_INFO "SyscallLog: Syscall open found, replacing it...\n");
+		original_sys_open =(void * )xchg(&(sys_call_table[__NR_open]), our_fake_open_function);
+		printk(KERN_INFO "SyscallLog: Syscall fork found, replacing it...\n");
+		original_sys_fork =(void * )xchg(&(sys_call_table[__NR_fork]), our_fake_fork_function);
+		enable_page_protection();
+		
 		replaced = true;
 	}
 	else {
