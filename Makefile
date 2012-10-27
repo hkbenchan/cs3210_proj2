@@ -11,7 +11,7 @@ clean:
 	make -C /lib/modules/$(KVERSION)/build M=$(PWD) clean
 
 test_open: test_open.c
-	gcc -o test_open test_open.c
+	gcc -o test_open test_open.c -lrt
 
 load : syscalllog.o
 	-/sbin/rmmod syscalllog
