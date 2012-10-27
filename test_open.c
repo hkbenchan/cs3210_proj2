@@ -8,7 +8,7 @@ int main() {
     char tempstring[1024];
     
     struct timespec tp_start;
-	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp_start) < 0){
+	if(clock_gettime(CLOCK_REALTIME, &tp_start) < 0){
 		printf("clock_gettime() failed\n");
 	}
 
@@ -26,7 +26,7 @@ int main() {
 	printf("\n");
 	
 	struct timespec tp_end;
-	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp_end) < 0){
+	if(clock_gettime(CLOCK_REALTIME, &tp_end) < 0){
 		printf("clock_gettime() failed\n");
 	}
 	//struct timespec tp_diff;
