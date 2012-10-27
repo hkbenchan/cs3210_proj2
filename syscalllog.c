@@ -18,8 +18,8 @@
 static unsigned long *sys_call_table;
 static bool replaced = false;
 
-static void log_action(unsigned long uid, struct timeval tv) {
-	//printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld.%.6ld\n",current->uid,filename,tv.tv_sec, tv.tv_usec);
+static void log_action(unsigned long uid, struct timeval tv, const char *sys_call_name) {
+	printk(KERN_INFO "SyscallLog: Uid: %d %s at time %ld.%.6ld\n",current->uid,sys_call_name,tv.tv_sec, tv.tv_usec);
 }
 
 asmlinkage long (*original_sys_fork) (struct pt_regs regs);
@@ -29,7 +29,7 @@ asmlinkage long our_fake_fork_func (struct pt_regs regs)
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->uid, tv);
+		log_action(current->uid, tv, "fork");
 	}
 	
 	return original_sys_fork(regs);
@@ -138,6 +138,7 @@ static void __exit logger_exit(void)
 	if (replaced) {
 		disable_page_protection();
 		xchg(&(sys_call_table[__NR_open]), original_sys_open);
+		xchg(&(sys_call_table[__NR_fork]), original_sys_fork);
 		enable_page_protection();
 	}
 	printk(KERN_INFO "SyscallLog: Warning: You have turned off the logger.\n");
