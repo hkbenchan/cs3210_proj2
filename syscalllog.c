@@ -404,7 +404,7 @@ static unsigned long *aquire_sys_call_table(void)
 		sct = (unsigned long **)offset;
 
 		if (sct[__NR_close] == (unsigned long *) sys_close) 
-			return sct;
+			return &sct;
 
 		offset += sizeof(void *);
 	}
