@@ -400,10 +400,12 @@ static unsigned long **aquire_sys_call_table(void)
 	unsigned long int offset = PAGE_OFFSET;
 	unsigned long **sct;
 
+	
+
 	while (offset < ULLONG_MAX) {
 		sct = (unsigned long **)offset;
 
-		if (sct[__NR_open] == (unsigned long *) sys_open) 
+		if (sct[__NR_close] == (unsigned long *) sys_close) 
 			return sct;
 
 		offset += sizeof(void *);
