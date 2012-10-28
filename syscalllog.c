@@ -441,12 +441,12 @@ static void enable_page_protection(void)
 static int __init logger_init(void)
 {
 	unsigned long *sys_table;
-	unsigned long **sys_table2;
+	unsigned long *sys_table2;
 	int flag = 0;
 	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804fbb80",NULL,16));
 	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804ff148",NULL,16));
 		
-	sys_table2 = aquire_sys_call_table();
+	sys_table2 = (unsigned long *)aquire_sys_call_table();
 	sys_table = (unsigned long *) simple_strtoul("0xffffffff804fbb80",NULL,16);
 	
 	if (sys_table) {
@@ -455,7 +455,7 @@ static int __init logger_init(void)
 	}
 	
 	if (sys_table2) {
-		printk(KERN_INFO "table2: %lu\n", (unsigned long)sys_table[__NR_open]);
+		printk(KERN_INFO "table2: %lu\n", sys_table[__NR_open]);
 	}
 		
 	if(flag) {
