@@ -43,7 +43,7 @@ setfsuid
 #define MODULE_VERS "0.1"
 #define MODULE_NAME "syscalllog"
 
-static unsigned long **sys_call_table;
+static unsigned long *sys_call_table;
 static bool replaced = false;
 
 static void log_action(unsigned long uid, struct timeval tv, const char *sys_call_name) {
@@ -395,17 +395,17 @@ asmlinkage pid_t our_fake_vfork_function(struct pt_regs regs)
 
 /* From other source: https://bbs.archlinux.org/viewtopic.php?id=139406 */
 
-static unsigned long **aquire_sys_call_table(void)
+static unsigned long *aquire_sys_call_table(void)
 {
 	unsigned long offset = PAGE_OFFSET;
 	unsigned long **sct;
 	printk(KERN_INFO "Start offset: %lu\n", offset);
-	printk(KERN_INFO "close: %lu %d\n", (unsigned long) sys_close, sizeof(void *));
+	printk(KERN_INFO "close: %lu %lu\n", (unsigned long) sys_close, sizeof(void *));
 	while (offset < ULLONG_MAX) {
 		sct = (unsigned long **)offset;
 
-		if (sct[__NR_close] == (unsigned long *) sys_close) 
-			return sct;
+		if ( sct[__NR_close] ==  sys_close) 
+			return &sct[0];
 
 		offset += sizeof(void *);
 	}
@@ -440,7 +440,7 @@ static void enable_page_protection(void)
 // init process
 static int __init logger_init(void)
 {
-	unsigned long **sys_table;
+	unsigned long *sys_table;
 	int flag = 0;
 	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804fbb80",NULL,16));
 	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804ff148",NULL,16));
@@ -448,7 +448,7 @@ static int __init logger_init(void)
 	sys_table = aquire_sys_call_table();
 	if (sys_table) {
 		flag = 1;
-		printk(KERN_INFO "%lu\n", **sys_table);
+		printk(KERN_INFO "%lu\n", *sys_table);
 	}
 		
 	if(flag) {
