@@ -395,9 +395,9 @@ asmlinkage pid_t our_fake_vfork_function(struct pt_regs regs)
 
 /* From other source: https://bbs.archlinux.org/viewtopic.php?id=139406 */
 
-static unsigned long *aquire_sys_call_table(void)
+static unsigned long **aquire_sys_call_table(void)
 {
-	unsigned long offset = PAGE_OFFSET;
+	unsigned long int offset = PAGE_OFFSET;
 	unsigned long **sct;
 	printk(KERN_INFO "Start offset: %lu\n", offset);
 	printk(KERN_INFO "close: %lu %lu\n", (unsigned long) sys_close, sizeof(void *));
@@ -445,7 +445,7 @@ static int __init logger_init(void)
 	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804fbb80",NULL,16));
 	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804ff148",NULL,16));
 		
-	sys_table = aquire_sys_call_table();
+	sys_table = (unsigned long *)aquire_sys_call_table();
 	if (sys_table) {
 		flag = 1;
 		printk(KERN_INFO "%lu\n", *sys_table);
