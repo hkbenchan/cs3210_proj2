@@ -450,7 +450,7 @@ static int __init logger_init(void)
 	
 	if (sys_table) {
 		flag = 1;
-		printk(KERN_INFO "%lu\n", *sys_table);
+		printk(KERN_INFO "%lu %lu\n", *sys_table, (unsigned long)sys_close);
 	}
 		
 	if(flag) {
