@@ -446,18 +446,18 @@ static int __init logger_init(void)
 	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804fbb80",NULL,16));
 	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804ff148",NULL,16));
 		
-	sys_table2 = (unsigned long *)aquire_sys_call_table();
-	sys_table = (unsigned long *) simple_strtoul("0xffffffff804fbb80",NULL,16);
+	sys_table = (unsigned long *)aquire_sys_call_table();
+	//sys_table = (unsigned long *) simple_strtoul("0xffffffff804fbb80",NULL,16);
 	
 	if (sys_table) {
 		flag = 1;
 		printk(KERN_INFO "%lu %lu\n", sys_table[__NR_open], (unsigned long )sys_open);
 	}
-	
+	/*
 	if (sys_table2) {
 		printk(KERN_INFO "table2: %lu\n", sys_table[__NR_open]);
 	}
-		
+	*/	
 	if(flag) {
 		sys_call_table = sys_table;
 		printk(KERN_INFO "SyscallLog: Syscall table found, replacing selected functions with our own...\n");
