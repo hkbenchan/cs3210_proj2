@@ -400,6 +400,7 @@ static unsigned long **aquire_sys_call_table(void)
 	unsigned long offset = PAGE_OFFSET;
 	unsigned long **sct;
 	printk(KERN_INFO "Start offset: %lu\n", offset);
+	printk(KERN_INFO "close: %lu %d\n", (unsigned long) sys_close, sizeof(void *));
 	while (offset < ULLONG_MAX) {
 		sct = (unsigned long **)offset;
 
