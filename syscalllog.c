@@ -442,6 +442,8 @@ static int __init logger_init(void)
 	unsigned long **sys_table;
 	int flag = 0;
 	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804fbb80",NULL,16));
+	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804ff148",NULL,16));
+		
 	sys_table = aquire_sys_call_table();
 	if (sys_table) {
 		flag = 1;
