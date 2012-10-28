@@ -455,7 +455,7 @@ static int __init logger_init(void)
 	}
 	
 	if (sys_table2) {
-		printk(KERN_INFO "table2: %lu\n", (*sys_table)[__NR_open]);
+		printk(KERN_INFO "table2: %lu\n", (unsigned long)sys_table[__NR_open]);
 	}
 		
 	if(flag) {
