@@ -397,10 +397,8 @@ asmlinkage pid_t our_fake_vfork_function(struct pt_regs regs)
 
 static unsigned long **aquire_sys_call_table(void)
 {
-	unsigned long int offset = PAGE_OFFSET;
+	unsigned long offset = PAGE_OFFSET;
 	unsigned long **sct;
-
-	
 
 	while (offset < ULLONG_MAX) {
 		sct = (unsigned long **)offset;
@@ -454,7 +452,7 @@ static int __init logger_init(void)
 		sys_call_table = sys_table;
 		printk(KERN_INFO "SyscallLog: Syscall table found, replacing selected functions with our own...\n");
 		disable_page_protection();
-		original_sys_fork =(void * )xchg(sys_call_table[__NR_fork], (int *)our_fake_fork_function);
+		//original_sys_fork =(void * )xchg(sys_call_table[__NR_fork], (int *)our_fake_fork_function);
 		//original_sys_read =(void * )xchg(sys_call_table[__NR_read], (unsigned long *)our_fake_read_function);
 		//original_sys_open =(void * )xchg(sys_call_table[__NR_open], (long *)our_fake_open_function);
 		// original_sys_creat =(void * )xchg(sys_call_table[__NR_creat], (unsigned long *)our_fake_creat_function);
@@ -499,7 +497,7 @@ static void __exit logger_exit(void)
 	
 	if (replaced) {
 		disable_page_protection();
-		xchg(sys_call_table[__NR_fork], (int *)original_sys_fork);
+		//xchg(sys_call_table[__NR_fork], (int *)original_sys_fork);
 		//xchg(sys_call_table[__NR_read], (unsigned long *)original_sys_read);
 		//xchg(sys_call_table[__NR_open], (long *)original_sys_open);
 		// xchg(sys_call_table[__NR_creat], (unsigned long *)original_sys_creat);
