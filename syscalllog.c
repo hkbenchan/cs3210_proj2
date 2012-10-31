@@ -51,7 +51,7 @@ static bool replaced = false;
 struct logMsg {
 	char *msg;
 	struct logMsg *next;
-}
+};
 
 static struct logMsg *msg_head;
 static struct logMsg *msg_tail;
