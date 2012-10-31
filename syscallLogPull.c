@@ -7,15 +7,15 @@ int main() {
 	FILE *procFile, *outputFile;
     char tempstring[1024];
 
-    if(!(myfile=fopen("/proc/syslog","r")))
+    if(!(procFile=fopen("/proc/syslog","r")))
     {
          fprintf(stderr,"Could not open file\n");
          return -1;
     }
 
-    while(!feof(myfile))
+    while(!feof(procFile))
     {
-         fscanf(myfile,"%s",tempstring);
+         fscanf(procFile,"%s",tempstring);
          printf("%s",tempstring);
     }
 	printf("\n");
