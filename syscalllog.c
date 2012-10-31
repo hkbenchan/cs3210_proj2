@@ -10,6 +10,7 @@
 #include <asm/current.h>
 #include <linux/unistd.h>
 #include <linux/namei.h>
+#include <linux/seq_file.h>		/* for seq_file */
 
 /**
 These syscall will be recorded:
