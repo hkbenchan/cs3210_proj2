@@ -59,14 +59,6 @@ static struct logMsg *msg_tail = NULL;
 static struct proc_dir_entry *syslog_file;
 
 // <pid>  <syscall number>    <timestamp>     <arg values>
-static void log_action(unsigned long pid, struct timeval tv, const char *sys_call_name) {
-	char *str;
-	int len; int sys_call_number = 0;
-	printk(KERN_INFO "SyscallLog: pid: %d %s at time %ld.%.6ld\n",pid,sys_call_name,tv.tv_sec, tv.tv_usec);
-	len = sprintf(str, "%d %d %ld.%.6ld", pid, sys_call_number, tv.tv_sec, tv.tv_usec);
-	add_msg(str,len+1);
-}
-
 static void add_msg(const char *msg, int len) {
 	struct logMsg *new_msg;
 	int i;
@@ -94,6 +86,12 @@ static void remove_head_msg(void)
 	struct logMsg *cur;
 	if (msg_head) {
 		printk(KERN_INFO "SyscallLog: Removing the head msg...\n");
+		if (msg_head == msg_tail) {
+			cur = msg_tail;
+			msg_tail = NULL;
+			vfree(cur->msg);
+			vfree(cur);
+		}
 		cur = msg_head;
 		msg_head = msg_head->next;
 		vfree(cur->msg);
@@ -107,12 +105,20 @@ static int syslog_read(char *buffer, char **buffer_location, off_t offset, int b
 	if (!msg_head) {
 		return 0;
 	} else {
-		return_string_len = sprintf(buffer, "%s", head_msg->msg);
+		return_string_len = sprintf(buffer, "%s", msg_head->msg);
 		// move the head to next
-		remove_head_msg(void);
+		remove_head_msg();
 	}
 	
 	return return_string_len + 1;
+}
+
+static void log_action(unsigned long pid, struct timeval tv, const char *sys_call_name) {
+	char *str;
+	int len; int sys_call_number = 0;
+	printk(KERN_INFO "SyscallLog: pid: %d %s at time %ld.%.6ld\n",pid,sys_call_name,tv.tv_sec, tv.tv_usec);
+	len = sprintf(str, "%d %d %ld.%.6ld", pid, sys_call_number, tv.tv_sec, tv.tv_usec);
+	add_msg(str,len+1);
 }
 
 /***************************syscall method *******************************/
@@ -507,7 +513,7 @@ static void enable_page_protection(void)
 static int __init logger_init(void)
 {
 	unsigned long *sys_table;
-	unsigned long *sys_table2;
+	//unsigned long *sys_table2;
 	int flag = 0;
 	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804fbb80",NULL,16));
 	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804ff148",NULL,16));
