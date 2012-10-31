@@ -114,11 +114,11 @@ static int syslog_read(char *buffer, char **buffer_location, off_t offset, int b
 	} else {
 		return_string_len = sprintf(buffer, "%s\n", msg_head->msg);
 		// move the head to next
-		printk("SyscallLog: Reading: %s\n",buffer);
+		printk("SyscallLog: Reading: %s",buffer);
 		remove_head_msg();
 	}
 	
-	return return_string_len + 1;
+	return return_string_len;
 }
 
 static void log_action(unsigned long pid, struct timeval tv, const char *sys_call_name) {
