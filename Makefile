@@ -9,9 +9,9 @@ syscalllog.o: syscalllog.c
 
 clean:
 	make -C /lib/modules/$(KVERSION)/build M=$(PWD) clean
-	rm *.o
-	rm test_open
-	rm pullLog
+	-rm *.o
+	-rm test_open
+	-rm pullLog
 
 test_open: test_open.c
 	gcc -o test_open test_open.c -lrt

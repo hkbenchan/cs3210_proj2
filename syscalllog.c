@@ -59,6 +59,8 @@ static struct logMsg *msg_tail;
 
 static struct proc_dir_entry *syslog_file;
 
+DEFINE_MUTEX(msg_mutex);
+
 // <pid>  <syscall number>    <timestamp>     <arg values>
 static void add_msg(const char *msg, int len) {
 	struct logMsg *new_msg;
@@ -70,6 +72,8 @@ static void add_msg(const char *msg, int len) {
 		new_msg->msg[i] = msg[i];
 	}
 	
+	mutex_lock(&msg_mutex);
+	
 	if (!msg_head) {
 		msg_head = new_msg;
 		new_msg->next = NULL;
@@ -78,12 +82,13 @@ static void add_msg(const char *msg, int len) {
 		msg_tail->next = new_msg;
 		msg_tail = new_msg;
 	}
-	
+	mutex_unlock(&msg_mutex);
 }
 
 static void remove_head_msg(void)
 {
 	struct logMsg *cur;
+	mutex_lock(&msg_mutex);
 	if (msg_head) {
 		if (msg_head == msg_tail) {
 			cur = msg_tail;
@@ -98,6 +103,7 @@ static void remove_head_msg(void)
 			vfree(cur);
 		}
 	}
+	mutex_unlock(&msg_mutex);
 }
 
 static int syslog_read(char *buffer, char **buffer_location, off_t offset, int buffer_length, int *eof, void *data)
