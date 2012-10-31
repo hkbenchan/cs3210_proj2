@@ -42,6 +42,7 @@ setfsuid
 
 #define MODULE_VERS "0.5"
 #define MODULE_NAME "syscalllog"
+#define MAX_LOG_LENGTH 1024
 #define procfs_name "syslog"
 
 
@@ -114,11 +115,12 @@ static int syslog_read(char *buffer, char **buffer_location, off_t offset, int b
 }
 
 static void log_action(unsigned long pid, struct timeval tv, const char *sys_call_name) {
-	char *str;
+	char *str = vmalloc(sizeof(char) * MAX_LOG_LENGTH);
 	int len; int sys_call_number = 0;
 	printk(KERN_INFO "SyscallLog: pid: %d %s at time %ld.%.6ld\n",pid,sys_call_name,tv.tv_sec, tv.tv_usec);
 	len = sprintf(str, "%d %d %ld.%.6ld", pid, sys_call_number, tv.tv_sec, tv.tv_usec);
 	//add_msg(str,len+1);
+	vfree(str);
 }
 
 /***************************syscall method *******************************/
