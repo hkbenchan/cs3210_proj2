@@ -53,8 +53,8 @@ struct logMsg {
 	struct logMsg *next;
 }
 
-static struct logMsg *msg_head = NULL;
-static struct logMsg *msg_tail = NULL;
+static struct logMsg *msg_head;
+static struct logMsg *msg_tail;
 
 static struct proc_dir_entry *syslog_file;
 
