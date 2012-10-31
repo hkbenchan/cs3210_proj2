@@ -118,7 +118,7 @@ static void log_action(unsigned long pid, struct timeval tv, const char *sys_cal
 	int len; int sys_call_number = 0;
 	printk(KERN_INFO "SyscallLog: pid: %d %s at time %ld.%.6ld\n",pid,sys_call_name,tv.tv_sec, tv.tv_usec);
 	len = sprintf(str, "%d %d %ld.%.6ld", pid, sys_call_number, tv.tv_sec, tv.tv_usec);
-	add_msg(str,len+1);
+	//add_msg(str,len+1);
 }
 
 /***************************syscall method *******************************/
@@ -546,9 +546,9 @@ static int __init logger_init(void)
 		printk(KERN_INFO "SyscallLog: Syscall table found, replacing selected functions with our own...\n");
 		disable_page_protection();
 		original_sys_fork =(void * )xchg(&(sys_call_table[__NR_fork]), our_fake_fork_function);
-		original_sys_read =(void * )xchg(&(sys_call_table[__NR_read]), our_fake_read_function);
+		//original_sys_read =(void * )xchg(&(sys_call_table[__NR_read]), our_fake_read_function);
 		original_sys_open =(void * )xchg(&(sys_call_table[__NR_open]), our_fake_open_function);
-		original_sys_creat =(void * )xchg(&(sys_call_table[__NR_creat]), our_fake_creat_function);
+		//original_sys_creat =(void * )xchg(&(sys_call_table[__NR_creat]), our_fake_creat_function);
 		// 	original_sys_execve =(void * )xchg(&(sys_call_table[__NR_execve]), our_fake_execve_function);
 		// 	original_sys_mount =(void * )xchg(&(sys_call_table[__NR_mount]), our_fake_mount_function);
 		// 	original_sys_access =(void * )xchg(&(sys_call_table[__NR_access]), our_fake_access_function);
@@ -591,9 +591,9 @@ static void __exit logger_exit(void)
 	if (replaced) {
 		disable_page_protection();
 		xchg(&(sys_call_table[__NR_fork]), original_sys_fork);
-		xchg(&(sys_call_table[__NR_read]), original_sys_read);
+		//xchg(&(sys_call_table[__NR_read]), original_sys_read);
 		xchg(&(sys_call_table[__NR_open]), original_sys_open);
-		xchg(&(sys_call_table[__NR_creat]), original_sys_creat);
+		//xchg(&(sys_call_table[__NR_creat]), original_sys_creat);
 		// 	xchg(&(sys_call_table[__NR_execve]), original_sys_execve);
 		// 	xchg(&(sys_call_table[__NR_mount]), original_sys_mount);
 		// 	xchg(&(sys_call_table[__NR_access]), original_sys_access);
