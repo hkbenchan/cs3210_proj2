@@ -65,7 +65,6 @@ DEFINE_MUTEX(msg_mutex);
 static void add_msg(const char *msg, int len) {
 	struct logMsg *new_msg;
 	int i;
-	printk("SyscallLog: msg is : %s\n",msg);
 	new_msg = vmalloc(sizeof(struct logMsg));
 	new_msg->msg = vmalloc(sizeof(char) * len);
 	new_msg->next = NULL;
@@ -84,7 +83,6 @@ static void add_msg(const char *msg, int len) {
 		msg_tail = new_msg;
 	}
 	mutex_unlock(&msg_mutex);
-	printk("SyscallLog: after copy msg is: %s\n", new_msg->msg);
 }
 
 static void remove_head_msg(void)
@@ -116,6 +114,7 @@ static int syslog_read(char *buffer, char **buffer_location, off_t offset, int b
 	} else {
 		return_string_len = sprintf(buffer, "%s\n", msg_head->msg);
 		// move the head to next
+		printk("SyscallLog: Reading: %s\n",buffer);
 		remove_head_msg();
 	}
 	
