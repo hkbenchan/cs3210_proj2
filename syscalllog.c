@@ -90,13 +90,15 @@ static void remove_head_msg(void)
 		if (msg_head == msg_tail) {
 			cur = msg_tail;
 			msg_tail = NULL;
+			msg_head = NULL;
+			vfree(cur->msg);
+			vfree(cur);
+		} else {
+			cur = msg_head;
+			msg_head = msg_head->next;
 			vfree(cur->msg);
 			vfree(cur);
 		}
-		cur = msg_head;
-		msg_head = msg_head->next;
-		vfree(cur->msg);
-		vfree(cur);
 	}
 }
 
