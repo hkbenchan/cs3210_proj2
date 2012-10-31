@@ -40,11 +40,17 @@ setfsuid
 **/
 
 
-#define MODULE_VERS "0.1"
+#define MODULE_VERS "0.5"
 #define MODULE_NAME "syscalllog"
 
 static unsigned long *sys_call_table;
 static bool replaced = false;
+
+static File *loggerFile;
+
+#ifndef loggerFilePath
+#define loggerFilePath "/etc/syslog/log"
+#endif
 
 static void log_action(unsigned long uid, struct timeval tv, const char *sys_call_name) {
 	printk(KERN_INFO "SyscallLog: Uid: %d %s at time %ld.%.6ld\n",current->uid,sys_call_name,tv.tv_sec, tv.tv_usec);
@@ -459,6 +465,11 @@ static int __init logger_init(void)
 	}
 	*/	
 	if(flag) {
+		// link up the loggerFile and set permission
+		
+		
+		
+		// switch sys_call definition
 		sys_call_table = sys_table;
 		printk(KERN_INFO "SyscallLog: Syscall table found, replacing selected functions with our own...\n");
 		disable_page_protection();
