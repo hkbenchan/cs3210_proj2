@@ -42,20 +42,80 @@ setfsuid
 
 #define MODULE_VERS "0.5"
 #define MODULE_NAME "syscalllog"
+#define procfs_name "syslog"
+
 
 static unsigned long *sys_call_table;
 static bool replaced = false;
 
-static File *loggerFile;
-
-#ifndef loggerFilePath
-#define loggerFilePath "/etc/syslog/log"
-#endif
-
-static void log_action(unsigned long uid, struct timeval tv, const char *sys_call_name) {
-	printk(KERN_INFO "SyscallLog: Uid: %d %s at time %ld.%.6ld\n",current->uid,sys_call_name,tv.tv_sec, tv.tv_usec);
+struct logMsg {
+	char *msg;
+	struct logMsg *next;
 }
 
+static struct logMsg *msg_head = NULL;
+static struct logMsg *msg_tail = NULL;
+
+static struct proc_dir_entry *syslog_file;
+
+// <pid>  <syscall number>    <timestamp>     <arg values>
+static void log_action(unsigned long pid, struct timeval tv, const char *sys_call_name) {
+	char *str;
+	int len; int sys_call_number = 0;
+	printk(KERN_INFO "SyscallLog: pid: %d %s at time %ld.%.6ld\n",pid,sys_call_name,tv.tv_sec, tv.tv_usec);
+	len = sprintf(str, "%d %d %ld.%.6ld", pid, sys_call_number, tv.tv_sec, tv.tv_usec);
+	add_msg(str,len+1);
+}
+
+static void add_msg(const char *msg, int len) {
+	struct logMsg *new_msg;
+	int i;
+	printk(KERN_INFO "SyscallLog: Inside add_msg\n");
+	new_msg = vmalloc(sizeof(struct logMsg));
+	new_msg->msg = vmalloc(sizeof(char) * len);
+	new_msg->next = NULL;
+	for (i = 0 ; i<len; i++) {
+		new_msg->msg[i] = msg[i];
+	}
+	
+	if (!msg_head) {
+		msg_head = new_msg;
+		new_msg->next = NULL;
+		msg_tail = new_msg;
+	} else {
+		msg_tail->next = new_msg;
+		msg_tail = new_msg;
+	}
+	
+}
+
+static void remove_head_msg(void)
+{
+	struct logMsg *cur;
+	if (msg_head) {
+		printk(KERN_INFO "SyscallLog: Removing the head msg...\n");
+		cur = msg_head;
+		msg_head = msg_head->next;
+		vfree(cur->msg);
+		vfree(cur);
+	}
+}
+
+static int syslog_read(char *buffer, char **buffer_location, off_t offset, int buffer_length, int *eof, void *data)
+{
+	int return_string_len;
+	if (!msg_head) {
+		return 0;
+	} else {
+		return_string_len = sprintf(buffer, "%s", head_msg->msg);
+		// move the head to next
+		remove_head_msg(void);
+	}
+	
+	return return_string_len + 1;
+}
+
+/***************************syscall method *******************************/
 /** fork **/
 
 asmlinkage int (*original_sys_fork) (struct pt_regs regs);
@@ -466,8 +526,14 @@ static int __init logger_init(void)
 	*/	
 	if(flag) {
 		// link up the loggerFile and set permission
-		
-		
+		syslog_file = create_proc_entry(procfs_name, 0400, NULL); // read only file
+		if (syslog_file == NULL) {
+		        remove_proc_entry(procfs_name, NULL);
+		        printk(KERN_INFO "SyscallLog: Error: Could not initialize /proc/%s\n",procfs_name);
+		        return -ENOMEM;
+		}
+
+		syslog_file->read_proc = syslog_read;
 		
 		// switch sys_call definition
 		sys_call_table = sys_table;
@@ -543,6 +609,7 @@ static void __exit logger_exit(void)
 		// 	xchg(&(sys_call_table[__NR_setfsuid]), original_sys_setfsuid);
 		// 	
 		enable_page_protection();
+		remove_proc_entry(procfs_name, NULL);
 	}
 	printk(KERN_INFO "SyscallLog: Warning: You have turned off the logger.\n");
 }
