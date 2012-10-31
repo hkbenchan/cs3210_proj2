@@ -19,3 +19,7 @@ load : syscalllog.o
 
 unload:
 	-/sbin/rmmod syscalllog
+
+puller: syscallLogPull.c
+	gcc -o pullLog syscallLogPull.c
+
