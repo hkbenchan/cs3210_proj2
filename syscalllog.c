@@ -106,6 +106,103 @@ static void remove_head_msg(void)
 	mutex_unlock(&msg_mutex);
 }
 
+/* seq_printf: reference: http://linux.die.net/lkmpg/x861.html */
+
+/**
+ * This function is called at the beginning of a sequence.
+ * ie, when:
+ *	- the /proc file is read (first time)
+ *	- after the function stop (end of sequence)
+ *
+ */
+static void *my_seq_start(struct seq_file *s, loff_t *pos)
+{
+	static unsigned long counter = 0;
+
+	/* beginning a new sequence ? */	
+	if ( *pos == 0 )
+	{	
+		/* yes => return a non null value to begin the sequence */
+		return &counter;
+	}
+	else
+	{
+		/* no => it's the end of the sequence, return end to stop reading */
+		*pos = 0;
+		return NULL;
+	}
+}
+
+/**
+ * This function is called after the beginning of a sequence.
+ * It's called until the return is NULL (this ends the sequence).
+ *
+ */
+static void *my_seq_next(struct seq_file *s, void *v, loff_t *pos)
+{
+	unsigned long *tmp_v = (unsigned long *)v;
+	(*tmp_v)++;
+	(*pos)++;
+	return NULL;
+}
+
+/**
+ * This function is called at the end of a sequence
+ * 
+ */
+static void my_seq_stop(struct seq_file *s, void *v)
+{
+	/* nothing to do, we use a static value in start() */
+}
+
+/**
+ * This function is called for each "step" of a sequence
+ *
+ */
+static int my_seq_show(struct seq_file *s, void *v)
+{
+	loff_t *spos = (loff_t *) v;
+	
+	seq_printf(s, "%s\n", msg_head->msg);
+	remove_head_msg();
+	return 0;
+}
+
+/**
+ * This structure gather "function" to manage the sequence
+ *
+ */
+static struct seq_operations my_seq_ops = {
+	.start = my_seq_start,
+	.next  = my_seq_next,
+	.stop  = my_seq_stop,
+	.show  = my_seq_show
+};
+
+/**
+ * This function is called when the /proc file is open.
+ *
+ */
+static int my_open(struct inode *inode, struct file *file)
+{
+	return seq_open(file, &my_seq_ops);
+};
+
+/**
+ * This structure gather "function" that manage the /proc file
+ *
+ */
+static struct file_operations my_file_ops = {
+	.owner   = THIS_MODULE,
+	.open    = my_open,
+	.read    = seq_read,
+	.llseek  = seq_lseek,
+	.release = seq_release
+};
+
+/* end of seq_printf */
+
+/*
 static int syslog_read(char *buffer, char **buffer_location, off_t offset, int buffer_length, int *eof, void *data)
 {
 	int return_string_len;
@@ -120,7 +217,7 @@ static int syslog_read(char *buffer, char **buffer_location, off_t offset, int b
 	
 	return return_string_len;
 }
-
+*/
 static void log_action(unsigned long pid, struct timeval tv, const char *sys_call_name) {
 	char *str = vmalloc(sizeof(char) * MAX_LOG_LENGTH);
 	int len; int sys_call_number = 0;
@@ -548,7 +645,8 @@ static int __init logger_init(void)
 		        return -ENOMEM;
 		}
 
-		syslog_file->read_proc = syslog_read;
+		//syslog_file->read_proc = syslog_read;
+		syslog_file->proc_fops = &my_file_ops;
 		
 		// switch sys_call definition
 		sys_call_table = sys_table;
