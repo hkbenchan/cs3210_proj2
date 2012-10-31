@@ -1,4 +1,3 @@
-chmod 0600 install.sh
-chmod +x install.sh
+chmod 1700 install.sh
 chown root install.sh
 ./install.sh
