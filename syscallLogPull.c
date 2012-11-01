@@ -20,7 +20,7 @@ int main() {
 	}
 	
 	if (stat("/var/log/sclog", &st) != 0) {
-		mkdir("/var/log/sclog",0666);
+		mkdir("/var/log/sclog",0600);
 	}
 	
 	if (stat("/var/log/sclog", &st) != 0) {
@@ -56,8 +56,8 @@ int main() {
 	fclose(procFile);
 	fclose(outputFile);
 	
-	//chmod("/var/log/sclog/log_"+tv.tv_sec, S_ISVTX | S_IRUSR | S_IWUSR);
-	printf("---End---\n");
+	chmod("/var/log/sclog/log_"+tv.tv_sec, S_ISVTX | S_IRUSR | S_IWUSR);
+	printf("---End---\nLogged in %s\n",filePath);
 
 	return 0;
 }
