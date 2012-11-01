@@ -7,7 +7,7 @@ all: unload syscalllog.o test_open puller
 syscalllog.o: syscalllog.c
 	make -C /lib/modules/$(KVERSION)/build M=$(PWD) modules
 
-clean:
+clean: unload
 	make -C /lib/modules/$(KVERSION)/build M=$(PWD) clean
 	-rm *.o
 	-rm test_open
