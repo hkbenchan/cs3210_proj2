@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <time.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #define procfs_name "syslog"
 
@@ -7,7 +10,7 @@ int main() {
 
 	FILE *procFile, *outputFile;
 	char tempstring[4][1024];
-	struct timeval tv;
+	struct timespec tv;
 	
 	if(!(procFile=fopen("/proc/syslog","r")))
 	{
