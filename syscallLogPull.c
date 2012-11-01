@@ -37,7 +37,7 @@ int main() {
 	
 	
 	
-	fprintf(outputFile,"pid   \tsyscall number\ttimestamp       \tsyscall name\n");
+	fprintf(outputFile,"pid   \tsyscall_number\ttimestamp       \tsyscall name\n");
 
 	while(!feof(procFile))
 	{
