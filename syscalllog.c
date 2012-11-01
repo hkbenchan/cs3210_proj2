@@ -244,7 +244,7 @@ asmlinkage ssize_t our_fake_read_function(unsigned int fd, char __user * buf, si
 {
 	struct timeval tv;
 	char argument[256];
-	do_gettimeofday(&tv);// = current_kernel_time();
+	do_gettimeofday(&tv);
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
 		sprintf(argument, "arg1(fd): %u", fd);
@@ -263,7 +263,7 @@ asmlinkage long our_fake_open_function(const char __user * filename, int flags, 
 {
 	struct timeval tv;
 	char argument[256];
-	do_gettimeofday(&tv);// = current_kernel_time();
+	do_gettimeofday(&tv);
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
 		sprintf(argument, "arg1(filename): %s", filename);
@@ -284,7 +284,7 @@ asmlinkage long our_fake_creat_function(const char __user * pathname, int mode)
 {
 	struct timeval tv;
 	char argument[256];
-	do_gettimeofday(&tv);// = current_kernel_time();
+	do_gettimeofday(&tv);
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
 		sprintf(argument, "arg1(pathname): %s", pathname);
@@ -305,7 +305,7 @@ asmlinkage int our_fake_execve_function(char __user *filename, char __user * __u
 {
 	struct timeval tv;
 	char argument[256];
-	do_gettimeofday(&tv);// = current_kernel_time();
+	do_gettimeofday(&tv);
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
 		sprintf(argument, "arg1(pathname): %s", filename);
@@ -324,7 +324,7 @@ asmlinkage long our_fake_mount_function(char __user * dev_name, char __user * di
 {
 	struct timeval tv;
 	char argument[256];
-	do_gettimeofday(&tv);// = current_kernel_time();
+	do_gettimeofday(&tv);
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
 		sprintf(argument, "arg1(dev_name): %s", dev_name);
@@ -350,7 +350,7 @@ asmlinkage long our_fake_access_function(const char __user * filename, int mode)
 {
 	struct timeval tv;
 	char argument[256];
-	do_gettimeofday(&tv);// = current_kernel_time();
+	do_gettimeofday(&tv);
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
 		sprintf(argument, "arg1(filename): %s", filename);
@@ -369,7 +369,7 @@ asmlinkage long our_fake_readlink_function(const char __user * path, char __user
 {
 	struct timeval tv;
 	char argument[256];
-	do_gettimeofday(&tv);// = current_kernel_time();
+	do_gettimeofday(&tv);
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
 		sprintf(argument, "arg1(path): %s", path);
@@ -390,7 +390,7 @@ asmlinkage long our_fake_mmap_function(unsigned long addr, unsigned long len, un
 {
 	struct timeval tv;
 	char argument[256];
-	do_gettimeofday(&tv);// = current_kernel_time();
+	do_gettimeofday(&tv);
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
 		sprintf(argument, "arg1(addr): %lu", addr);
@@ -417,7 +417,7 @@ asmlinkage long our_fake_ioperm_function(unsigned long from, unsigned long num, 
 {
 	struct timeval tv;
 	char argument[256];
-	do_gettimeofday(&tv);// = current_kernel_time();
+	do_gettimeofday(&tv);
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
 		sprintf(argument, "arg1(from): %lu", from);
@@ -690,14 +690,12 @@ static void enable_page_protection(void)
 static int __init logger_init(void)
 {
 	unsigned long *sys_table;
-	//unsigned long *sys_table2;
 	int flag = 0;
-	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804fbb80",NULL,16));
-	printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804ff148",NULL,16));
+	// printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804fbb80",NULL,16));
+	// printk(KERN_INFO "%lu\n", simple_strtoul("0xffffffff804ff148",NULL,16));
 		
 	sys_table = (unsigned long *)aquire_sys_call_table();
-	//sys_table = (unsigned long *) simple_strtoul("0xffffffff804fbb80",NULL,16);
-	
+
 	if (sys_table) {
 		flag = 1;
 		printk(KERN_INFO "%lu %lu\n", sys_table[__NR_open], (unsigned long )sys_open);
@@ -712,7 +710,6 @@ static int __init logger_init(void)
 		        return -ENOMEM;
 		}
 
-		//syslog_file->read_proc = syslog_read;
 		syslog_file->proc_fops = &my_file_ops;
 		
 		// switch sys_call definition
@@ -749,8 +746,7 @@ static int __init logger_init(void)
 		printk(KERN_INFO "SyscallLog: Syscall open not found, nothing to do...\nSyscallLog: Leaving...\n");
 		return -1;
 	}
-	/*
-	*/
+
 	printk(KERN_INFO "SyscallLog: Everything loaded, good to go!\n");
 	printk(KERN_INFO "SyscallLog: All logs will be recorded from now...\n");
 	return 0;
@@ -787,14 +783,19 @@ static void __exit logger_exit(void)
 		// 			
 		enable_page_protection();
 		if (msg_head) {
-			printk("SyscallLog: You have messages without getting export...\n");
+			printk("SyscallLog: You have messages without getting export...\nSyscallLog: Directly printing here...");
+			printk("SyscallLog: /*********************Begin message dump **********************/");
 		}
 		while (msg_head) {
 			// clear the msg buffer first
 			i++;
+			printk("%s\n", msg_head->msg);
 			remove_head_msg();
 		}
-		printk("SyscallLog: You lose %d messages.\n", i);
+		if (i>0) {
+			printk("SyscallLog: /*********************End message dump **********************/");
+			printk("SyscallLog: You lose %d messages.\n", i);
+		}
 		remove_proc_entry(procfs_name, NULL);
 	}
 	printk(KERN_INFO "SyscallLog: Warning: You have turned off the logger.\n");
