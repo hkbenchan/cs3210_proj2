@@ -248,7 +248,7 @@ asmlinkage ssize_t our_fake_read_function(unsigned int fd, char __user * buf, si
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
 		sprintf(argument, "arg1(fd): %ld arg2(buf): %s, arg3(count): %ld", fd, buf, count);
-		log_action(current->pid, tv, "read", __NR_read, argument);
+		log_action(current->pid, tv, "read ", __NR_read, argument);
 	}
 	return original_sys_read(fd, buf, count);
 }
@@ -263,7 +263,7 @@ asmlinkage long our_fake_open_function(const char __user * filename, int flags, 
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current->pid, tv, "open " + filename, __NR_open, filename);
+		log_action(current->pid, tv, "open ", __NR_open, filename);
 	}
 	return original_sys_open(filename,flags,mode);
 }
