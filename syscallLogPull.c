@@ -28,7 +28,7 @@ int main() {
 		
 		fscanf(procFile,"%s",tempstring[2]); // timestamp
 		
-		fscanf(procFile,"%s", tmpestring[3]); // sys_call_name
+		fscanf(procFile,"%s", tempstring[3]); // sys_call_name
 		
 		fprintf(outputFile,"%.6s\t%.14s\t%s\t%s\n", tempstring[0], tempstring[1], tempstring[2],tempstring[3]);
 	}
