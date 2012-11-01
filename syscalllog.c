@@ -120,7 +120,7 @@ static void *my_seq_start(struct seq_file *s, loff_t *pos)
 	static unsigned long counter = 0;
 
 	/* beginning a new sequence ? */	
-	if ( *pos == 0 )
+	if (msg_head)
 	{	
 		/* yes => return a non null value to begin the sequence */
 		return &counter;

@@ -37,8 +37,6 @@ int main() {
 		return -1;
 	}
 	
-	
-	
 	fprintf(outputFile,"pid   \tsyscall_number\ttimestamp       \targ value\n");
 
 	while(fgets(line_buffer, sizeof(line_buffer), procFile))
@@ -51,7 +49,7 @@ int main() {
 		
 		fscanf(procFile,"%s", tempstring[3]); // arg value
 		*/
-		fprintf(outputFile,"%s\n", line_buffer);
+		fprintf(outputFile,"%s", line_buffer);
 		//fprintf(outputFile,"%-6s\t%-14s\t%s\t%s\n", tempstring[0], tempstring[1], tempstring[2], tempstring[3]);
 		
 	}
