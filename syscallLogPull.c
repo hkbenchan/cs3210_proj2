@@ -12,6 +12,7 @@ int main() {
 	char tempstring[4][1024];
 	struct timeval tv;
 	struct stat st;
+	char filePath[1024];
 	if(!(procFile=fopen("/proc/syslog","r")))
 	{
 		fprintf(stderr,"Could not open file\n");
@@ -27,8 +28,9 @@ int main() {
 		return -1;
 	}
 	
-	//gettimeofday(&tv, NULL);
-	if (!(outputFile=fopen("/var/log/sclog/log","w")))
+	gettimeofday(&tv, NULL);
+	sprintf(filePath, "/var/log/sclog/log_%ld", tv.tv_sec);
+	if (!(outputFile=fopen(filePath,"w")))
 	//if (!(outputFile=fopen("/var/log/sclog/log_"+tv.tv_sec,"w")))
 	{
 		fprintf(stderr,"Could not open file to dump\n");
@@ -37,7 +39,7 @@ int main() {
 	
 	
 	
-	fprintf(outputFile,"pid   \tsyscall_number\ttimestamp       \tsyscall name\n");
+	fprintf(outputFile,"pid   \tsyscall_number\ttimestamp       \targ value\n");
 
 	while(!feof(procFile))
 	{
@@ -47,9 +49,9 @@ int main() {
 		
 		fscanf(procFile,"%s",tempstring[2]); // timestamp
 		
-		fscanf(procFile,"%s", tempstring[3]); // sys_call_name
+		fscanf(procFile,"%s", tempstring[3]); // arg value
 		
-		fprintf(outputFile,"%-6s\t%-14s\t%s\t%s\n", tempstring[0], tempstring[1], tempstring[2],tempstring[3]);
+		fprintf(outputFile,"%-6s\t%-14s\t%s\t%s\n", tempstring[0], tempstring[1], tempstring[2], tempstring[3]);
 	}
 	fclose(procFile);
 	fclose(outputFile);
