@@ -141,10 +141,17 @@ static void *my_seq_start(struct seq_file *s, loff_t *pos)
  */
 static void *my_seq_next(struct seq_file *s, void *v, loff_t *pos)
 {
-	unsigned long *tmp_v = (unsigned long *)v;
-	(*tmp_v)++;
-	(*pos)++;
-	return NULL;
+	loff_t *spos = (loff_t *) v;
+	*pos = ++(*spos);
+	mutex_lock(&msg_mutex);
+	if (!msg_head) {
+		mutex_unlock(&msg_mutex);
+		return NULL;
+	} else {
+		mutex_unlock(&msg_mutex);
+		return spos;
+	}
+	
 }
 
 /**
@@ -164,7 +171,9 @@ static int my_seq_show(struct seq_file *s, void *v)
 {
 	loff_t *spos = (loff_t *) v;
 	
-	seq_printf(s, "%s\n", msg_head->msg);
+	if (msg_head)
+		seq_printf(s, "%s\n", msg_head->msg);
+		
 	remove_head_msg();
 	return 0;
 }
