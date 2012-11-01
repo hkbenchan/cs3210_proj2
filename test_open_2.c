@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <time.h>
-#include <iostream>
 
 int main() {
 	
@@ -12,7 +11,7 @@ int test_fopen_fread(){
 	FILE *myfile;
     
     struct timespec tp_start;
-	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp_start) < 0){
+	if(clock_gettime(CLOCK_REALTIME, &tp_start) < 0){
 		printf("clock_gettime() failed\n");
 	}
 
@@ -29,11 +28,19 @@ int test_fopen_fread(){
 	}
 	
 	struct timespec tp_end;
-	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp_end) < 0){
+	if(clock_gettime(CLOCK_REALTIME, &tp_end) < 0){
 		printf("clock_gettime() failed\n");
 	}
-	struct timespec tp_diff = diff(timespec tp_start, timespec tp_end);
-	std::cout << "This test took " << tp_diff.tv_sec << " seconds" << endl;
+	//struct timespec tp_diff;
+	
+	long nano_seconds = (tp_end.tv_nsec - tp_start.tv_nsec);
+	long seconds = (tp_end.tv_sec - tp_start.tv_sec);
+	if (nano_seconds < 0) {
+		nano_seconds += 1000000000;
+		seconds --;
+	}
+	printf("%ld %ld", tp_end.tv_sec, tp_end.tv_nsec); 
+	printf("This test took  %ld.%ld seconds.\n", seconds, nano_seconds);
 	
 	return 0;
 }
@@ -51,8 +58,8 @@ int test_mmap(){
 	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp_end) < 0){
 		printf("clock_gettime() failed\n");
 	}
-	struct timespec tp_diff = diff(timespec start, timespec end);
-	std::cout << "This test took " << tp_diff.tv_sec << " seconds" << endl;
+	//struct timespec tp_diff = diff(timespec start, timespec end);
+	//std::cout << "This test took " << tp_diff.tv_sec << " seconds" << endl;
 	
 	return 0;
 }
