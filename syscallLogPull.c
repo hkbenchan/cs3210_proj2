@@ -19,14 +19,13 @@ int main() {
 	}
 	
 	if (stat("/var/log/sclog", &st) != 0) {
-		mkdir("/var/log/sclog",0600);
+		mkdir("/var/log/sclog",0666);
 	}
 	
 	if (stat("/var/log/sclog", &st) != 0) {
 		fprintf(stderr, "Could not create directory on /var/log/sclog");
 		return -1;
 	}
-	
 	
 	gettimeofday(&tv, NULL);
 	
