@@ -24,5 +24,5 @@ unload:
 	-/sbin/rmmod syscalllog
 
 puller: syscallLogPull.c
-	gcc -o pullLog syscallLogPull.c
+	gcc -o pullLog syscallLogPull.c -lrt
 
