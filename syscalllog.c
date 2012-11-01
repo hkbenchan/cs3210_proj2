@@ -247,7 +247,7 @@ asmlinkage ssize_t our_fake_read_function(unsigned int fd, char __user * buf, si
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		sprintf(argument, "arg1(fd): %ld arg2(buf): %s, arg3(count): %ld", fd, buf, count);
+		sprintf(argument, "arg1(fd): %ld arg2(buf): %s, arg3(count): %u", fd, buf, count);
 		log_action(current->pid, tv, "read ", __NR_read, argument);
 	}
 	return original_sys_read(fd, buf, count);
@@ -361,7 +361,7 @@ asmlinkage long our_fake_mmap_function(unsigned long addr, unsigned long len, un
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current->pid, tv, "mmap", __NR_mmap, addr);
+		log_action(current->pid, tv, "mmap", __NR_mmap, "");
 	}
 	return original_old_mmap(addr, len, prot, flags, fd, offset);	
 }
