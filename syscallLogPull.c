@@ -18,7 +18,7 @@ int main() {
 		return -1;
 	}
 	do_gettimeofday(&tv);
-	if (!(outputFile=fopen("/var/log/syscall.log/log_"+tv.sec,"w")))
+	if (!(outputFile=fopen("/var/log/syscall.log/log_"+tv.tv_sec,"w")))
 	{
 		fprintf(stderr,"Could not open file to dump\n");
 		return -1;
@@ -43,7 +43,7 @@ int main() {
 	fclose(procFile);
 	fclose(outputFile);
 	
-	chmod("/var/log/syscall.log/log_"+tv.sec, S_ISVTX | S_IRUSR | S_IWUSR);
+	chmod("/var/log/syscall.log/log_"+tv.tv_sec, S_ISVTX | S_IRUSR | S_IWUSR);
 	printf("---End---\n");
 
 	return 0;
