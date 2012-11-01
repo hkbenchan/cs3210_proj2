@@ -16,7 +16,7 @@ int main() {
     while(!feof(procFile))
     {
          fscanf(procFile,"%s",tempstring);
-         printf("%s",tempstring);
+         printf("%s\n",tempstring);
     }
 	printf("\n");
 	

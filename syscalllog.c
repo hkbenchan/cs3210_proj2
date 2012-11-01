@@ -172,7 +172,7 @@ static int my_seq_show(struct seq_file *s, void *v)
 	loff_t *spos = (loff_t *) v;
 	
 	if (msg_head)
-		seq_printf(s, "%s\n", msg_head->msg);
+		seq_printf(s, "%s ", msg_head->msg);
 		
 	remove_head_msg();
 	return 0;
