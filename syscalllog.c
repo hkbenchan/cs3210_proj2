@@ -646,7 +646,7 @@ static int __init logger_init(void)
 		original_sys_open =(void * )xchg(&(sys_call_table[__NR_open]), our_fake_open_function);
 		original_sys_creat =(void * )xchg(&(sys_call_table[__NR_creat]), our_fake_creat_function);
 		//original_sys_execve =(void * )xchg(&(sys_call_table[__NR_execve]), our_fake_execve_function);
-		//original_sys_mount =(void * )xchg(&(sys_call_table[__NR_mount]), our_fake_mount_function);
+		original_sys_mount =(void * )xchg(&(sys_call_table[__NR_mount]), our_fake_mount_function);
 		// original_sys_access =(void * )xchg(&(sys_call_table[__NR_access]), our_fake_access_function);
 		// original_sys_readlink =(void * )xchg(&(sys_call_table[__NR_readlink]), our_fake_readlink_function);
 		// 	original_old_mmap =(void * )xchg(&(sys_call_table[__NR_mmap]), our_fake_mmap_function);
@@ -691,7 +691,7 @@ static void __exit logger_exit(void)
 		xchg(&(sys_call_table[__NR_open]), original_sys_open);
 		xchg(&(sys_call_table[__NR_creat]), original_sys_creat);
 		//xchg(&(sys_call_table[__NR_execve]), original_sys_execve);
-		// xchg(&(sys_call_table[__NR_mount]), original_sys_mount);
+		xchg(&(sys_call_table[__NR_mount]), original_sys_mount);
 		// xchg(&(sys_call_table[__NR_access]), original_sys_access);
 		// xchg(&(sys_call_table[__NR_readlink]), original_sys_readlink);
 		// 	xchg(&(sys_call_table[__NR_mmap]), original_old_mmap);
