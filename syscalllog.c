@@ -169,7 +169,7 @@ static void my_seq_stop(struct seq_file *s, void *v)
  */
 static int my_seq_show(struct seq_file *s, void *v)
 {
-	loff_t *spos = (loff_t *) v;
+	//loff_t *spos = (loff_t *) v;
 	
 	if (msg_head)
 		seq_printf(s, "%s ", msg_head->msg);
@@ -216,7 +216,7 @@ static void log_action(unsigned long pid, struct timeval tv, const char *sys_cal
 	char *str = vmalloc(sizeof(char) * MAX_LOG_LENGTH);
 	int len;
 	//printk(KERN_INFO "SyscallLog: pid: %ld %s at time %ld.%.6ld\n",pid,sys_call_name,tv.tv_sec, tv.tv_usec);
-	len = sprintf(str, "%ld %d %ld.%.6ld %s", pid, sys_call_number, tv.tv_sec, tv.tv_usec, sys_call_name);
+	len = sprintf(str, "%ld %ld %ld.%.6ld %s", pid, sys_call_number, tv.tv_sec, tv.tv_usec, sys_call_name);
 	add_msg(str,len+1);
 	vfree(str);
 }
