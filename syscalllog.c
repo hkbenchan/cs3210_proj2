@@ -28,7 +28,6 @@ ioperm
 
 setuid
 setreuid
-//mmap2
 vfork
 pread
 setresuid
@@ -529,23 +528,6 @@ asmlinkage int our_fake_setuid_function(uid_t uid)
 	return original_sys_setuid(uid);
 }
 
-/** mmap2 **/
-/*
-asmlinkage long(*original_sys_mmap2) (unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags,
-	unsigned long fd, unsigned long pgoff);
-
-asmlinkage long our_fake_mmap2_function(unsigned long addr, unsigned long len, unsigned long prot, unsigned long flags,
-	unsigned long fd, unsigned long pgoff)
-{
-	struct timeval tv;
-	do_gettimeofday(&tv);
-	if (current->uid) {
-		log_action(current->pid, tv, "mmap2", __NR_mmap2);
-	}
-	
-	return original_sys_mmap2(addr, len, prot, flags, fd, pgoff);
-}
-*/
 /** vfork **/
 
 asmlinkage pid_t (*original_sys_vfork)(struct pt_regs regs);
@@ -656,7 +638,6 @@ static int __init logger_init(void)
 		//
 		original_sys_setuid =(void * )xchg(&(sys_call_table[__NR_setuid]), our_fake_setuid_function);
 		original_sys_setreuid =(void * )xchg(&(sys_call_table[__NR_setreuid]), our_fake_setreuid_function);
-		//original_sys_mmap2 =(void * )xchg(&(sys_call_table[__NR_mmap2]), our_fake_mmap2_function);
 		original_sys_vfork =(void * )xchg(&(sys_call_table[__NR_vfork]), our_fake_vfork_function);
 		original_sys_pread =(void * )xchg(&(sys_call_table[__NR_pread64]), our_fake_pread_function);
 		original_sys_setresuid =(void * )xchg(&(sys_call_table[__NR_setresuid]), our_fake_setresuid_function);
@@ -699,10 +680,8 @@ static void __exit logger_exit(void)
 		xchg(&(sys_call_table[__NR_mmap]), original_old_mmap);
 		xchg(&(sys_call_table[__NR_ioperm]), original_sys_ioperm);
 		//
-		// 
 		xchg(&(sys_call_table[__NR_setuid]), original_sys_setuid);
 		xchg(&(sys_call_table[__NR_setreuid]), original_sys_setreuid);
-		//xchg(&(sys_call_table[__NR_mmap2]), original_sys_mmap2);
 		xchg(&(sys_call_table[__NR_vfork]), original_sys_vfork);
 		xchg(&(sys_call_table[__NR_pread64]), original_sys_pread);
 		xchg(&(sys_call_table[__NR_setresuid]), original_sys_setresuid);
