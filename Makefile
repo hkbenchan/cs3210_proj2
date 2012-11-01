@@ -13,8 +13,8 @@ clean: unload
 	-rm test_open
 	-rm pullLog
 
-test_open: test_open.c
-	gcc -o test_open test_open.c -lrt
+test_open: test_open_2.c
+	gcc -o test_open test_open_2.c -lrt
 
 load : syscalllog.o
 	-/sbin/rmmod syscalllog

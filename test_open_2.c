@@ -32,7 +32,7 @@ int test_fopen_fread(){
 	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp_end) < 0){
 		printf("clock_gettime() failed\n");
 	}
-	struct timespec tp_diff = diff(timespec start, timespec end);
+	struct timespec tp_diff = diff(timespec tp_start, timespec tp_end);
 	std::cout << "This test took " << tp_diff.tv_sec << " seconds" << endl;
 	
 	return 0;
