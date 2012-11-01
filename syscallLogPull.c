@@ -27,9 +27,9 @@ int main() {
 		return -1;
 	}
 	
-	gettimeofday(&tv, NULL);
-	
-	if (!(outputFile=fopen("/var/log/sclog/log_"+tv.tv_sec,"w")))
+	//gettimeofday(&tv, NULL);
+	if (!(outputFile=fopen("/var/log/sclog/log","w")))
+	//if (!(outputFile=fopen("/var/log/sclog/log_"+tv.tv_sec,"w")))
 	{
 		fprintf(stderr,"Could not open file to dump\n");
 		return -1;
@@ -54,7 +54,7 @@ int main() {
 	fclose(procFile);
 	fclose(outputFile);
 	
-	chmod("/var/log/sclog/log_"+tv.tv_sec, S_ISVTX | S_IRUSR | S_IWUSR);
+	//chmod("/var/log/sclog/log_"+tv.tv_sec, S_ISVTX | S_IRUSR | S_IWUSR);
 	printf("---End---\n");
 
 	return 0;

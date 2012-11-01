@@ -624,11 +624,7 @@ static int __init logger_init(void)
 		flag = 1;
 		printk(KERN_INFO "%lu %lu\n", sys_table[__NR_open], (unsigned long )sys_open);
 	}
-	/*
-	if (sys_table2) {
-		printk(KERN_INFO "table2: %lu\n", sys_table[__NR_open]);
-	}
-	*/	
+
 	if(flag) {
 		// link up the loggerFile and set permission
 		syslog_file = create_proc_entry(procfs_name, 0400, NULL); // read only file
