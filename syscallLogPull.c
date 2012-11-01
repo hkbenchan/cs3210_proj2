@@ -13,7 +13,7 @@ int main() {
 		return -1;
 	}
 
-	if (!(outputFile=fopen("/var/log/syscall.log","w"))
+	if (!(outputFile=fopen("/var/log/syscall.log","w")))
 	{
 		fprintf(stderr,"Could not open file to dump\n");
 		return -1;
