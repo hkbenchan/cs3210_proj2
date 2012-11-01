@@ -229,7 +229,6 @@ asmlinkage int (*original_sys_fork) (struct pt_regs regs);
 asmlinkage int our_fake_fork_function(struct pt_regs regs)
 {
 	struct timeval tv;
-	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
 		log_action(current->pid, tv, __NR_fork, "arg1(regs)");
@@ -561,7 +560,7 @@ asmlinkage ssize_t our_fake_pread_function(unsigned int fd, char __user *buf, si
 	if (current->uid) {
 		sprintf(argument, "arg1(fd): %u", fd);
 		log_action(current->pid, tv, __NR_pread64, argument);
-		sprintf(argument, "arg3(pos): %ld", pos);
+		sprintf(argument, "arg3(pos): %lld", pos);
 		log_action(current->pid, tv, __NR_pread64, argument);
 	}
 	
