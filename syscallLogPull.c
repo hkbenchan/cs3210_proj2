@@ -18,20 +18,19 @@ int main() {
 		fprintf(stderr,"Could not open file to dump\n");
 		return -1;
 	}
-	fprintf(outputFile,"pid\tsyscall number\ttimestamp\n");
+	fprintf(outputFile,"pid   \tsyscall number\ttimestamp       \tsyscall name\n");
 
 	while(!feof(procFile))
 	{
-		fscanf(procFile,"%s",tempstring[0]);
-		//printf("%s ",tempstring[0]);
+		fscanf(procFile,"%s",tempstring[0]); // pid
 		
-		fscanf(procFile,"%s",tempstring[1]);
-		//printf("%s ",tempstring[1]);
+		fscanf(procFile,"%s",tempstring[1]); // syscall number
 		
-		fscanf(procFile,"%s",tempstring[2]);
-		//printf("%s\n",tempstring[2]);
+		fscanf(procFile,"%s",tempstring[2]); // timestamp
 		
-		fprintf(outputFile,"%s\t%s\t%s\n", tempstring[0], tempstring[1], tempstring[2]);
+		fscanf(procFile,"%s", tmpestring[3]); // sys_call_name
+		
+		fprintf(outputFile,"%.6s\t%.14s\t%s\t%s\n", tempstring[0], tempstring[1], tempstring[2],tempstring[3]);
 	}
 	fclose(procFile);
 	fclose(outputFile);

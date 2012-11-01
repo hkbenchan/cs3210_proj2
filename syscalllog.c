@@ -212,27 +212,11 @@ static struct file_operations my_file_ops = {
 
 /* end of seq_printf */
 
-/*
-static int syslog_read(char *buffer, char **buffer_location, off_t offset, int buffer_length, int *eof, void *data)
-{
-	int return_string_len;
-	if (!msg_head) {
-		return 0;
-	} else {
-		return_string_len = sprintf(buffer, "%s\n", msg_head->msg);
-		// move the head to next
-		printk("SyscallLog: Reading: %s",buffer);
-		remove_head_msg();
-	}
-	
-	return return_string_len;
-}
-*/
-static void log_action(unsigned long pid, struct timeval tv, const char *sys_call_name) {
+static void log_action(unsigned long pid, struct timeval tv, const char *sys_call_name, unsigned long sys_call_number) {
 	char *str = vmalloc(sizeof(char) * MAX_LOG_LENGTH);
 	int len; int sys_call_number = 0;
-	printk(KERN_INFO "SyscallLog: pid: %ld %s at time %ld.%.6ld\n",pid,sys_call_name,tv.tv_sec, tv.tv_usec);
-	len = sprintf(str, "%ld %d %ld.%.6ld", pid, sys_call_number, tv.tv_sec, tv.tv_usec);
+	//printk(KERN_INFO "SyscallLog: pid: %ld %s at time %ld.%.6ld\n",pid,sys_call_name,tv.tv_sec, tv.tv_usec);
+	len = sprintf(str, "%ld %d %ld.%.6ld %s", pid, sys_call_number, tv.tv_sec, tv.tv_usec, sys_call_name);
 	add_msg(str,len+1);
 	vfree(str);
 }
@@ -247,7 +231,7 @@ asmlinkage int our_fake_fork_function(struct pt_regs regs)
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "fork");
+		log_action(current->pid, tv, "fork", __NR_fork);
 	}
 	
 	return original_sys_fork(regs);
@@ -262,7 +246,7 @@ asmlinkage ssize_t our_fake_read_function(unsigned int fd, char __user * buf, si
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current->pid, tv, "read");
+		log_action(current->pid, tv, "read", __NR_read);
 	}
 	return original_sys_read(fd, buf, count);
 }
@@ -277,8 +261,7 @@ asmlinkage long our_fake_open_function(const char __user * filename, int flags, 
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		//printk(KERN_INFO "SyscallLog: Uid: %d open %s at time %ld.%.6ld\n",current->uid,filename,tv.tv_sec, tv.tv_usec);
-		log_action(current->pid, tv, "open");
+		log_action(current->pid, tv, "open", __NR_open);
 	}
 	return original_sys_open(filename,flags,mode);
 }
@@ -293,7 +276,7 @@ asmlinkage long our_fake_creat_function(const char __user * pathname, int mode)
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current->pid, tv, "creat");
+		log_action(current->pid, tv, "creat", __NR_creat);
 	}
 	return original_sys_creat(pathname,mode);	
 }
@@ -308,7 +291,7 @@ asmlinkage int our_fake_execve_function(struct pt_regs regs)
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current->pid, tv, "execve");
+		log_action(current->pid, tv, "execve", __NR_execve);
 	}
 	return original_sys_execve(regs);
 }
@@ -325,7 +308,7 @@ asmlinkage long our_fake_mount_function(char __user * dev_name, char __user * di
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current->pid, tv, "mount");
+		log_action(current->pid, tv, "mount", __NR_mount);
 	}
 	return original_sys_mount(dev_name, dir_name, type, flags, data);
 }
@@ -340,7 +323,7 @@ asmlinkage long our_fake_access_function(const char __user * filename, int mode)
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current->pid, tv, "access");
+		log_action(current->pid, tv, "access", __NR_access);
 	}
 	return original_sys_access(filename,mode);
 }
@@ -355,7 +338,7 @@ asmlinkage long our_fake_readlink_function(const char __user * path, char __user
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current->pid, tv, "readlink");
+		log_action(current->pid, tv, "readlink", __NR_readlink);
 	}
 	return original_sys_readlink(path, buf, bufsiz);
 }
@@ -372,7 +355,7 @@ asmlinkage long our_fake_mmap_function(unsigned long addr, unsigned long len, un
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current->pid, tv, "mmap");
+		log_action(current->pid, tv, "mmap", __NR_mmap);
 	}
 	return original_old_mmap(addr, len, prot, flags, fd, offset);	
 }
@@ -387,7 +370,7 @@ asmlinkage long our_fake_ioperm_function(unsigned long from, unsigned long num, 
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
-		log_action(current->pid, tv, "ioperm");
+		log_action(current->pid, tv, "ioperm", __NR_ioperm);
 	}
 	return original_sys_ioperm(from,num,turn_on);
 }
@@ -401,7 +384,7 @@ asmlinkage int our_fake_setfsuid_function(uid_t fsuid)
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "setfsuid");
+		log_action(current->pid, tv, "setfsuid", __NR_setfsuid);
 	}
 	
 	return original_sys_setfsuid(fsuid);
@@ -416,7 +399,7 @@ asmlinkage ssize_t our_fake_readv_function(int fd, const struct iovec *iov, int 
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "readv");
+		log_action(current->pid, tv, "readv", __NR_readv);
 	}
 	
 	return original_sys_readv(fd, iov, iovcnt); 
@@ -431,7 +414,7 @@ asmlinkage int our_fake_fsync_function(int fd)
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "fsync");
+		log_action(current->pid, tv, "fsync", __NR_fsync);
 	}
 	
 	return original_sys_fsync(fd); 
@@ -446,7 +429,7 @@ asmlinkage int our_fake_fdatasync_function(unsigned int fd)
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "fdatasync");
+		log_action(current->pid, tv, "fdatasync", __NR_fdatasync);
 	}
 	
 	return original_sys_fdatasync(fd); 
@@ -463,7 +446,7 @@ asmlinkage unsigned long our_fake_mremap_function (unsigned long addr, unsigned 
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "mremap");
+		log_action(current->pid, tv, "mremap", __NR_mremap);
 	}
 	
 	return original_sys_mremap(addr,old_len,new_len,flags,new_addr); 
@@ -478,7 +461,7 @@ asmlinkage long our_fake_setresuid_function(uid_t ruid, uid_t euid, uid_t suid)
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "setresuid");
+		log_action(current->pid, tv, "setresuid", __NR_setresuid);
 	}
 	
 	return original_sys_setresuid(ruid, euid, suid); 
@@ -493,7 +476,7 @@ asmlinkage ssize_t our_fake_pread_function(unsigned int fd, char __user *buf, si
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "pread64");
+		log_action(current->pid, tv, "pread64", __NR_pread64);
 	}
 	
 	return original_sys_pread(fd, buf, count, pos); 
@@ -508,7 +491,7 @@ asmlinkage int our_fake_setregid_function(gid_t rgid, gid_t egid)
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "setregid");
+		log_action(current->pid, tv, "setregid", __NR_setregid);
 	}
 	
 	return original_sys_setregid(rgid, egid);
@@ -523,7 +506,7 @@ asmlinkage int our_fake_setreuid_function(uid_t ruid, uid_t euid)
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "setreuid");
+		log_action(current->pid, tv, "setreuid", __NR_setreuid);
 	}
 	
 	return original_sys_setreuid(ruid,euid);
@@ -538,7 +521,7 @@ asmlinkage int our_fake_setuid_function(uid_t uid)
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "setuid");
+		log_action(current->pid, tv, "setuid", __NR_setuid);
 	}
 	
 	return original_sys_setuid(uid);
@@ -555,7 +538,7 @@ asmlinkage long our_fake_mmap2_function(unsigned long addr, unsigned long len, u
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "mmap2");
+		log_action(current->pid, tv, "mmap2", __NR_mmap2);
 	}
 	
 	return original_sys_mmap2(addr, len, prot, flags, fd, pgoff);
@@ -570,7 +553,7 @@ asmlinkage pid_t our_fake_vfork_function(struct pt_regs regs)
 	struct timeval tv;
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		log_action(current->pid, tv, "vfork");
+		log_action(current->pid, tv, "vfork", __NR_vfork);
 	}
 	
 	return original_sys_vfork(regs);
@@ -666,25 +649,25 @@ static int __init logger_init(void)
 		original_sys_read =(void * )xchg(&(sys_call_table[__NR_read]), our_fake_read_function);
 		original_sys_open =(void * )xchg(&(sys_call_table[__NR_open]), our_fake_open_function);
 		original_sys_creat =(void * )xchg(&(sys_call_table[__NR_creat]), our_fake_creat_function);
-		// 	original_sys_execve =(void * )xchg(&(sys_call_table[__NR_execve]), our_fake_execve_function);
-		// 	original_sys_mount =(void * )xchg(&(sys_call_table[__NR_mount]), our_fake_mount_function);
-		// 	original_sys_access =(void * )xchg(&(sys_call_table[__NR_access]), our_fake_access_function);
-		// 	original_sys_readlink =(void * )xchg(&(sys_call_table[__NR_readlink]), our_fake_readlink_function);
-		// 	original_old_mmap =(void * )xchg(&(sys_call_table[__NR_mmap]), our_fake_mmap_function);
-		// 	original_sys_ioperm =(void * )xchg(&(sys_call_table[__NR_ioperm]), our_fake_ioperm_function);
-		// 	//
-		// 	original_sys_setuid =(void * )xchg(&(sys_call_table[__NR_setuid]), our_fake_setuid_function);
-		// 	original_sys_setreuid =(void * )xchg(&(sys_call_table[__NR_setreuid]), our_fake_setreuid_function);
-		// 	//original_sys_mmap2 =(void * )xchg(&(sys_call_table[__NR_mmap2]), our_fake_mmap2_function);
-		// 	original_sys_vfork =(void * )xchg(&(sys_call_table[__NR_vfork]), our_fake_vfork_function);
-		// 	original_sys_pread =(void * )xchg(&(sys_call_table[__NR_pread64]), our_fake_pread_function);
-		// 	original_sys_setresuid =(void * )xchg(&(sys_call_table[__NR_setresuid]), our_fake_setresuid_function);
-		// 	original_sys_mremap =(void * )xchg(&(sys_call_table[__NR_mremap]), our_fake_mremap_function);
-		// 	original_sys_fdatasync =(void * )xchg(&(sys_call_table[__NR_fdatasync]), our_fake_fdatasync_function);
-		// 	original_sys_fsync=(void * )xchg(&(sys_call_table[__NR_fsync]), our_fake_fsync_function);
-		// 	original_sys_readv =(void * )xchg(&(sys_call_table[__NR_readv]), our_fake_readv_function);
-		// 	original_sys_setfsuid =(void * )xchg(&(sys_call_table[__NR_setfsuid]), our_fake_setfsuid_function);
-		// 
+		original_sys_execve =(void * )xchg(&(sys_call_table[__NR_execve]), our_fake_execve_function);
+		original_sys_mount =(void * )xchg(&(sys_call_table[__NR_mount]), our_fake_mount_function);
+		original_sys_access =(void * )xchg(&(sys_call_table[__NR_access]), our_fake_access_function);
+		original_sys_readlink =(void * )xchg(&(sys_call_table[__NR_readlink]), our_fake_readlink_function);
+		original_old_mmap =(void * )xchg(&(sys_call_table[__NR_mmap]), our_fake_mmap_function);
+		original_sys_ioperm =(void * )xchg(&(sys_call_table[__NR_ioperm]), our_fake_ioperm_function);
+		//
+		original_sys_setuid =(void * )xchg(&(sys_call_table[__NR_setuid]), our_fake_setuid_function);
+		original_sys_setreuid =(void * )xchg(&(sys_call_table[__NR_setreuid]), our_fake_setreuid_function);
+		//original_sys_mmap2 =(void * )xchg(&(sys_call_table[__NR_mmap2]), our_fake_mmap2_function);
+		original_sys_vfork =(void * )xchg(&(sys_call_table[__NR_vfork]), our_fake_vfork_function);
+		original_sys_pread =(void * )xchg(&(sys_call_table[__NR_pread64]), our_fake_pread_function);
+		original_sys_setresuid =(void * )xchg(&(sys_call_table[__NR_setresuid]), our_fake_setresuid_function);
+		original_sys_mremap =(void * )xchg(&(sys_call_table[__NR_mremap]), our_fake_mremap_function);
+		original_sys_fdatasync =(void * )xchg(&(sys_call_table[__NR_fdatasync]), our_fake_fdatasync_function);
+		original_sys_fsync=(void * )xchg(&(sys_call_table[__NR_fsync]), our_fake_fsync_function);
+		original_sys_readv =(void * )xchg(&(sys_call_table[__NR_readv]), our_fake_readv_function);
+		original_sys_setfsuid =(void * )xchg(&(sys_call_table[__NR_setfsuid]), our_fake_setfsuid_function);
+	
 		enable_page_protection();
 		
 		replaced = true;
@@ -711,26 +694,26 @@ static void __exit logger_exit(void)
 		xchg(&(sys_call_table[__NR_read]), original_sys_read);
 		xchg(&(sys_call_table[__NR_open]), original_sys_open);
 		xchg(&(sys_call_table[__NR_creat]), original_sys_creat);
-		// 	xchg(&(sys_call_table[__NR_execve]), original_sys_execve);
-		// 	xchg(&(sys_call_table[__NR_mount]), original_sys_mount);
-		// 	xchg(&(sys_call_table[__NR_access]), original_sys_access);
-		// 	xchg(&(sys_call_table[__NR_readlink]), original_sys_readlink);
-		// 	xchg(&(sys_call_table[__NR_mmap]), original_old_mmap);
-		// 	xchg(&(sys_call_table[__NR_ioperm]), original_sys_ioperm);
-		// 	//
-		// 	
-		// 	xchg(&(sys_call_table[__NR_setuid]), original_sys_setuid);
-		// 	xchg(&(sys_call_table[__NR_setreuid]), original_sys_setreuid);
-		// 	//xchg(&(sys_call_table[__NR_mmap2]), original_sys_mmap2);
-		// 	xchg(&(sys_call_table[__NR_vfork]), original_sys_vfork);
-		// 	xchg(&(sys_call_table[__NR_pread64]), original_sys_pread);
-		// 	xchg(&(sys_call_table[__NR_setresuid]), original_sys_setresuid);
-		// 	xchg(&(sys_call_table[__NR_mremap]), original_sys_mremap);
-		// 	xchg(&(sys_call_table[__NR_fdatasync]), original_sys_fdatasync);
-		// 	xchg(&(sys_call_table[__NR_fsync]), original_sys_fsync);
-		// 	xchg(&(sys_call_table[__NR_readv]), original_sys_readv);
-		// 	xchg(&(sys_call_table[__NR_setfsuid]), original_sys_setfsuid);
-		// 	
+		xchg(&(sys_call_table[__NR_execve]), original_sys_execve);
+		xchg(&(sys_call_table[__NR_mount]), original_sys_mount);
+		xchg(&(sys_call_table[__NR_access]), original_sys_access);
+		xchg(&(sys_call_table[__NR_readlink]), original_sys_readlink);
+		xchg(&(sys_call_table[__NR_mmap]), original_old_mmap);
+		xchg(&(sys_call_table[__NR_ioperm]), original_sys_ioperm);
+		//
+		
+		xchg(&(sys_call_table[__NR_setuid]), original_sys_setuid);
+		xchg(&(sys_call_table[__NR_setreuid]), original_sys_setreuid);
+		//xchg(&(sys_call_table[__NR_mmap2]), original_sys_mmap2);
+		xchg(&(sys_call_table[__NR_vfork]), original_sys_vfork);
+		xchg(&(sys_call_table[__NR_pread64]), original_sys_pread);
+		xchg(&(sys_call_table[__NR_setresuid]), original_sys_setresuid);
+		xchg(&(sys_call_table[__NR_mremap]), original_sys_mremap);
+		xchg(&(sys_call_table[__NR_fdatasync]), original_sys_fdatasync);
+		xchg(&(sys_call_table[__NR_fsync]), original_sys_fsync);
+		xchg(&(sys_call_table[__NR_readv]), original_sys_readv);
+		xchg(&(sys_call_table[__NR_setfsuid]), original_sys_setfsuid);
+			
 		enable_page_protection();
 		if (msg_head) {
 			printk("SyscallLog: You have messages without getting export...\n");
