@@ -17,7 +17,7 @@ int main() {
 		fprintf(stderr,"Could not open file\n");
 		return -1;
 	}
-	gettimeofday(&tv);
+	gettimeofday(&tv, NULL);
 	if (!(outputFile=fopen("/var/log/syscall.log/log_"+tv.tv_sec,"w")))
 	{
 		fprintf(stderr,"Could not open file to dump\n");
