@@ -229,7 +229,7 @@ asmlinkage int (*original_sys_fork) (struct pt_regs regs);
 asmlinkage int our_fake_fork_function(struct pt_regs regs)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
 		log_action(current->pid, tv, __NR_fork, "arg1(regs)");
@@ -244,7 +244,7 @@ asmlinkage ssize_t (*original_sys_read) (unsigned int fd, char __user * buf, siz
 asmlinkage ssize_t our_fake_read_function(unsigned int fd, char __user * buf, size_t count)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
@@ -263,7 +263,7 @@ asmlinkage long (*original_sys_open) (const char __user * filename, int flags, i
 asmlinkage long our_fake_open_function(const char __user * filename, int flags, int mode)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
@@ -284,7 +284,7 @@ asmlinkage long (*original_sys_creat) (const char __user * pathname, int mode);
 asmlinkage long our_fake_creat_function(const char __user * pathname, int mode)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
@@ -305,7 +305,7 @@ asmlinkage int our_fake_execve_function(char __user *filename, char __user * __u
 	struct pt_regs *regs)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
@@ -324,7 +324,7 @@ asmlinkage long our_fake_mount_function(char __user * dev_name, char __user * di
 			void __user * data)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
@@ -350,7 +350,7 @@ asmlinkage long (*original_sys_access)(const char __user * filename, int mode);
 asmlinkage long our_fake_access_function(const char __user * filename, int mode)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
@@ -369,7 +369,7 @@ asmlinkage long (*original_sys_readlink)(const char __user * path, char __user *
 asmlinkage long our_fake_readlink_function(const char __user * path, char __user * buf, int bufsiz)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
@@ -390,7 +390,7 @@ asmlinkage long our_fake_mmap_function(unsigned long addr, unsigned long len, un
 	unsigned long fd, unsigned long offset)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
@@ -417,7 +417,7 @@ asmlinkage long (*original_sys_ioperm) (unsigned long from, unsigned long num, i
 asmlinkage long our_fake_ioperm_function(unsigned long from, unsigned long num, int turn_on)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);// = current_kernel_time();
 	// try to get the current user id, timestamp and filename
 	if (current->uid) {
@@ -438,10 +438,10 @@ asmlinkage int (*original_sys_setfsuid)(uid_t fsuid);
 asmlinkage int our_fake_setfsuid_function(uid_t fsuid)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		sprintf(argument, "arg1(fsuid): %lu", fsuid);
+		sprintf(argument, "arg1(fsuid): %u", fsuid);
 		log_action(current->pid, tv, __NR_setfsuid, argument);
 	}
 	
@@ -455,7 +455,7 @@ asmlinkage ssize_t (*original_sys_readv)(int fd, const struct iovec *iov, int io
 asmlinkage ssize_t our_fake_readv_function(int fd, const struct iovec *iov, int iovcnt)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
 		sprintf(argument, "arg1(fd): %d", fd);
@@ -474,7 +474,7 @@ asmlinkage int (*original_sys_fsync)(int fd);
 asmlinkage int our_fake_fsync_function(int fd)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
 		sprintf(argument, "arg1(fd): %d", fd);
@@ -491,7 +491,7 @@ asmlinkage int (*original_sys_fdatasync)(unsigned int fd);
 asmlinkage int our_fake_fdatasync_function(unsigned int fd)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
 		sprintf(argument, "arg1(fd): %u", fd);
@@ -510,7 +510,7 @@ asmlinkage unsigned long our_fake_mremap_function (unsigned long addr, unsigned 
         unsigned long flags, unsigned long new_addr)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
 		sprintf(argument, "arg1(addr): %lu", addr);
@@ -535,14 +535,14 @@ asmlinkage long (*original_sys_setresuid)(uid_t ruid, uid_t euid, uid_t suid);
 asmlinkage long our_fake_setresuid_function(uid_t ruid, uid_t euid, uid_t suid)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		sprintf(argument, "arg1(ruid): %lu", ruid);
+		sprintf(argument, "arg1(ruid): %u", ruid);
 		log_action(current->pid, tv, __NR_setresuid, argument);
-		sprintf(argument, "arg2(euid): %lu", euid);
+		sprintf(argument, "arg2(euid): %u", euid);
 		log_action(current->pid, tv, __NR_setresuid, argument);
-		sprintf(argument, "arg3(suid): %lu", suid);
+		sprintf(argument, "arg3(suid): %u", suid);
 		log_action(current->pid, tv, __NR_setresuid, argument);
 	}
 	
@@ -556,7 +556,7 @@ asmlinkage ssize_t (*original_sys_pread)(unsigned int fd, char __user *buf, size
 asmlinkage ssize_t our_fake_pread_function(unsigned int fd, char __user *buf, size_t count, loff_t pos)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
 		sprintf(argument, "arg1(fd): %u", fd);
@@ -575,12 +575,12 @@ asmlinkage int (*original_sys_setregid) (gid_t rgid, gid_t egid);
 asmlinkage int our_fake_setregid_function(gid_t rgid, gid_t egid)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		sprintf(argument, "arg1(rgid): %lu", rgid);
+		sprintf(argument, "arg1(rgid): %u", rgid);
 		log_action(current->pid, tv, __NR_setregid, argument);
-		sprintf(argument, "arg1(egid): %lu", egid);
+		sprintf(argument, "arg1(egid): %u", egid);
 		log_action(current->pid, tv, __NR_setregid, argument);
 	}
 	
@@ -594,12 +594,12 @@ asmlinkage int (*original_sys_setreuid) (uid_t ruid, uid_t euid);
 asmlinkage int our_fake_setreuid_function(uid_t ruid, uid_t euid)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		sprintf(argument, "arg1(ruid): %lu", ruid);
+		sprintf(argument, "arg1(ruid): %u", ruid);
 		log_action(current->pid, tv, __NR_setreuid, argument);
-		sprintf(argument, "arg1(euid): %lu", euid);
+		sprintf(argument, "arg1(euid): %u", euid);
 		log_action(current->pid, tv, __NR_setreuid, argument);
 	}
 	
@@ -613,10 +613,10 @@ asmlinkage int (*original_sys_setuid)(uid_t uid);
 asmlinkage int our_fake_setuid_function(uid_t uid)
 {
 	struct timeval tv;
-	char argument[1024];
+	char argument[256];
 	do_gettimeofday(&tv);
 	if (current->uid) {
-		sprintf(argument, "arg1(uid): %lu", uid);
+		sprintf(argument, "arg1(uid): %u", uid);
 		log_action(current->pid, tv, __NR_setuid, argument);
 	}
 	
@@ -630,7 +630,6 @@ asmlinkage pid_t (*original_sys_vfork)(struct pt_regs regs);
 asmlinkage pid_t our_fake_vfork_function(struct pt_regs regs)
 {
 	struct timeval tv;
-	char argument[1024];
 	do_gettimeofday(&tv);
 	if (current->uid) {
 		log_action(current->pid, tv, __NR_vfork, "arg1(regs)");
