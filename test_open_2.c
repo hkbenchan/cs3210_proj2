@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <time.h>
+#include <sys/time.h>
+#include <copyfile.h>
 
 int main() {
 	
@@ -23,8 +25,9 @@ int test_fopen_fread(){
 
     const char *file2 = "/nethome/hchan35/source_code/cs3210_proj2/README(COPY).md";
     
-    if(!copyFile(myFile, file2)){
+    if(!copyFile(myfile, file2)){
 		fprintf(stderr,"Error copying file\n");
+		return -1;
 	}
 	
 	struct timespec tp_end;
