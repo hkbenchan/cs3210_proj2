@@ -11,14 +11,26 @@ int main() {
 	FILE *procFile, *outputFile;
 	char tempstring[4][1024];
 	struct timeval tv;
-	
+	struct stat st;
 	if(!(procFile=fopen("/proc/syslog","r")))
 	{
 		fprintf(stderr,"Could not open file\n");
 		return -1;
 	}
+	
+	if (stat("/var/log/sclog", &st) != 0) {
+		mkdir("/var/log/sclog",0600);
+	}
+	
+	if (stat("/var/log/sclog", &st) != 0) {
+		fprintf(stderr, "Could not create directory on /var/log/sclog");
+		return -1;
+	}
+	
+	
 	gettimeofday(&tv, NULL);
-	if (!(outputFile=fopen("/var/log/syscall.log/log_"+tv.tv_sec,"w")))
+	
+	if (!(outputFile=fopen("/var/log/sclog/log_"+tv.tv_sec,"w")))
 	{
 		fprintf(stderr,"Could not open file to dump\n");
 		return -1;
@@ -43,7 +55,7 @@ int main() {
 	fclose(procFile);
 	fclose(outputFile);
 	
-	chmod("/var/log/syscall.log/log_"+tv.tv_sec, S_ISVTX | S_IRUSR | S_IWUSR);
+	chmod("/var/log/sclog/log_"+tv.tv_sec, S_ISVTX | S_IRUSR | S_IWUSR);
 	printf("---End---\n");
 
 	return 0;
