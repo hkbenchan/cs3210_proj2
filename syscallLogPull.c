@@ -9,7 +9,7 @@
 int main() {
 
 	FILE *procFile, *outputFile;
-	char tempstring[4][1024];
+	char line_buffer[BUFSIZ];
 	struct timeval tv;
 	struct stat st;
 	char filePath[1024];
@@ -41,17 +41,19 @@ int main() {
 	
 	fprintf(outputFile,"pid   \tsyscall_number\ttimestamp       \targ value\n");
 
-	while(!feof(procFile))
+	while(fgets(line_buffer, sizeof(line_buffer), procFile))
 	{
-		fscanf(procFile,"%s",tempstring[0]); // pid
+		/*fscanf(procFile,"%s",tempstring[0]); // pid
 		
 		fscanf(procFile,"%s",tempstring[1]); // syscall number
 		
 		fscanf(procFile,"%s",tempstring[2]); // timestamp
 		
 		fscanf(procFile,"%s", tempstring[3]); // arg value
+		*/
+		fprintf(outputFile,"%s\n", line_buffer);
+		//fprintf(outputFile,"%-6s\t%-14s\t%s\t%s\n", tempstring[0], tempstring[1], tempstring[2], tempstring[3]);
 		
-		fprintf(outputFile,"%-6s\t%-14s\t%s\t%s\n", tempstring[0], tempstring[1], tempstring[2], tempstring[3]);
 	}
 	fclose(procFile);
 	fclose(outputFile);

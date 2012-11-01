@@ -171,7 +171,7 @@ static int my_seq_show(struct seq_file *s, void *v)
 	//loff_t *spos = (loff_t *) v;
 	
 	if (msg_head)
-		seq_printf(s, "%s ", msg_head->msg);
+		seq_printf(s, "%s\n", msg_head->msg);
 		
 	remove_head_msg();
 	return 0;
@@ -216,7 +216,7 @@ const char *additional_info) {
 
 	char *str = vmalloc(sizeof(char) * MAX_LOG_LENGTH);
 	int len;
-	len = sprintf(str, "%ld %ld %ld.%.6ld %s", pid, sys_call_number, tv.tv_sec, tv.tv_usec, additional_info);
+	len = sprintf(str, "%-6ld\t%-14ld\t%ld.%.6ld\t%s", pid, sys_call_number, tv.tv_sec, tv.tv_usec, additional_info);
 	add_msg(str,len+1);
 	vfree(str);
 }
