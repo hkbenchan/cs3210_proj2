@@ -16,7 +16,6 @@
 These syscall will be recorded:
 
 fork
-read
 open
 creat
 execve
@@ -235,24 +234,6 @@ asmlinkage int our_fake_fork_function(struct pt_regs regs)
 	}
 	
 	return original_sys_fork(regs);
-}
-
-/** read **/
-asmlinkage ssize_t (*original_sys_read) (unsigned int fd, char __user * buf, size_t count);
-
-asmlinkage ssize_t our_fake_read_function(unsigned int fd, char __user * buf, size_t count)
-{
-	struct timeval tv;
-	char argument[256];
-	do_gettimeofday(&tv);
-	// try to get the current user id, timestamp and filename
-	if (current->uid) {
-		sprintf(argument, "arg1(fd): %u", fd);
-		log_action(current->pid, tv, __NR_read, argument);
-		sprintf(argument, "arg3(count): %ld", count);
-		log_action(current->pid, tv, __NR_read, argument);
-	}
-	return original_sys_read(fd, buf, count);
 }
 
 /** open **/
@@ -717,7 +698,6 @@ static int __init logger_init(void)
 		printk(KERN_INFO "SyscallLog: Syscall table found, replacing selected functions with our own...\n");
 		disable_page_protection();
 		original_sys_fork =(void * )xchg(&(sys_call_table[__NR_fork]), our_fake_fork_function);
-		original_sys_read =(void * )xchg(&(sys_call_table[__NR_read]), our_fake_read_function);
 		original_sys_open =(void * )xchg(&(sys_call_table[__NR_open]), our_fake_open_function);
 		original_sys_creat =(void * )xchg(&(sys_call_table[__NR_creat]), our_fake_creat_function);
 		original_sys_execve =(void * )xchg(&(sys_call_table[__NR_execve]), our_fake_execve_function);
@@ -760,7 +740,6 @@ static void __exit logger_exit(void)
 	if (replaced) {
 		disable_page_protection();
 		xchg(&(sys_call_table[__NR_fork]), original_sys_fork);
-		xchg(&(sys_call_table[__NR_read]), original_sys_read);
 		xchg(&(sys_call_table[__NR_open]), original_sys_open);
 		xchg(&(sys_call_table[__NR_creat]), original_sys_creat);
 		xchg(&(sys_call_table[__NR_execve]), original_sys_execve);
