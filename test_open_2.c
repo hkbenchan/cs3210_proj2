@@ -14,7 +14,7 @@ int copyFile(const char *o_file, const char *c_file){
 	  }
 	  q=fopen(c_file,"w");
 	  if(q==NULL){
-		printf("cannot open %s",file2);
+		printf("cannot open %s",c_file);
 		return 1;
 	  }
 	  while((ch=getc(p))!=EOF)
