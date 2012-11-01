@@ -249,7 +249,7 @@ asmlinkage ssize_t our_fake_read_function(unsigned int fd, char __user * buf, si
 	if (current->uid) {
 		sprintf(argument, "arg1(fd):%u", fd);
 		log_action(current->pid, tv, __NR_read, argument);
-		sprintf(argument, "arg3(count):%ld", count)
+		sprintf(argument, "arg3(count):%ld", count);
 		log_action(current->pid, tv, __NR_read, argument);
 	}
 	return original_sys_read(fd, buf, count);
