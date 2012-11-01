@@ -67,7 +67,7 @@ int test_fopen_fread(){
 }
 
 int test_mmap(){
-    
+    /*
     struct timespec tp_start;
 	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp_start) < 0){
 		printf("clock_gettime() failed\n");
@@ -108,7 +108,7 @@ int test_mmap(){
 	}
 	printf("%ld %ld", tp_end.tv_sec, tp_end.tv_nsec); 
 	printf("Mmap: This test took  %ld.%ld seconds.\n", seconds, nano_seconds);
-	
+	*/
 	return 0;
 }
 
