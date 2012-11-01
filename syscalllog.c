@@ -214,7 +214,7 @@ static struct file_operations my_file_ops = {
 
 static void log_action(unsigned long pid, struct timeval tv, const char *sys_call_name, unsigned long sys_call_number) {
 	char *str = vmalloc(sizeof(char) * MAX_LOG_LENGTH);
-	int len; int sys_call_number = 0;
+	int len;
 	//printk(KERN_INFO "SyscallLog: pid: %ld %s at time %ld.%.6ld\n",pid,sys_call_name,tv.tv_sec, tv.tv_usec);
 	len = sprintf(str, "%ld %d %ld.%.6ld %s", pid, sys_call_number, tv.tv_sec, tv.tv_usec, sys_call_name);
 	add_msg(str,len+1);
