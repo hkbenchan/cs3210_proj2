@@ -283,9 +283,11 @@ asmlinkage long our_fake_creat_function(const char __user * pathname, int mode)
 
 /** execve **/
 
-asmlinkage int (*original_sys_execve) (struct pt_regs regs);
+asmlinkage long (*original_sys_execve) (char __user *filename, char __user * __user *argv, char __user * __user *envp, 
+	struct pt_regs *regs);
 
-asmlinkage int our_fake_execve_function(struct pt_regs regs)
+asmlinkage int our_fake_execve_function(char __user *filename, char __user * __user *argv, char __user * __user *envp, 
+	struct pt_regs *regs)
 {
 	struct timeval tv;
 	do_gettimeofday(&tv);// = current_kernel_time();
@@ -293,7 +295,7 @@ asmlinkage int our_fake_execve_function(struct pt_regs regs)
 	if (current->uid) {
 		log_action(current->pid, tv, "execve", __NR_execve);
 	}
-	return original_sys_execve(regs);
+	return original_sys_execve(filename, argv, envp, regs);
 }
 
 /** mount **/
@@ -645,7 +647,7 @@ static int __init logger_init(void)
 		original_sys_read =(void * )xchg(&(sys_call_table[__NR_read]), our_fake_read_function);
 		original_sys_open =(void * )xchg(&(sys_call_table[__NR_open]), our_fake_open_function);
 		original_sys_creat =(void * )xchg(&(sys_call_table[__NR_creat]), our_fake_creat_function);
-		//original_sys_execve =(void * )xchg(&(sys_call_table[__NR_execve]), our_fake_execve_function);
+		original_sys_execve =(void * )xchg(&(sys_call_table[__NR_execve]), our_fake_execve_function);
 		original_sys_mount =(void * )xchg(&(sys_call_table[__NR_mount]), our_fake_mount_function);
 		original_sys_access =(void * )xchg(&(sys_call_table[__NR_access]), our_fake_access_function);
 		original_sys_readlink =(void * )xchg(&(sys_call_table[__NR_readlink]), our_fake_readlink_function);
@@ -690,7 +692,7 @@ static void __exit logger_exit(void)
 		xchg(&(sys_call_table[__NR_read]), original_sys_read);
 		xchg(&(sys_call_table[__NR_open]), original_sys_open);
 		xchg(&(sys_call_table[__NR_creat]), original_sys_creat);
-		//xchg(&(sys_call_table[__NR_execve]), original_sys_execve);
+		xchg(&(sys_call_table[__NR_execve]), original_sys_execve);
 		xchg(&(sys_call_table[__NR_mount]), original_sys_mount);
 		xchg(&(sys_call_table[__NR_access]), original_sys_access);
 		xchg(&(sys_call_table[__NR_readlink]), original_sys_readlink);
